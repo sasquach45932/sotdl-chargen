@@ -223,6 +223,7 @@ export class SDLCGRoller extends FormApplication {
   }
 
   async _updateObject(event, formData) {
+    if (this.settings.Disable3Ddice) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
     const reRollAttributes = $(event.currentTarget).hasClass('sotdl-chargen-reroll')
 
     let ancestry = this.ancestries.find(x => x.id === formData.select_ancestry)
@@ -345,6 +346,7 @@ export class SDLCGRoller extends FormApplication {
 
       genActor.sheet.render(true)
     }
+    if (this.settings.Disable3Ddice) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
   }
 
   activateListeners(html) {

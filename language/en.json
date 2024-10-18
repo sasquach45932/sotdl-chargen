@@ -1,9 +1,11 @@
 {
     "SOTDLCG.ControlTitle": "SotDL Character Generator",
     "SOTDLCG.DefaultFolderName": "Folder Name.",
-    "SOTDLCG.DefaultFolderNameHint": "If set, actors are created in this folder. Default: CharGen.",    
+    "SOTDLCG.DefaultFolderNameHint": "If set, actors are created in this folder. Default: CharGen.",
     "SOTDLCG.SettingDisableRollChatMessages": "Disable Chat Messages.",
-    "SOTDLCG.SettingDisableRollChatMessagesHint": "If checked, table roll results are not displed in chat.", 
+    "SOTDLCG.SettingDisableRollChatMessagesHint": "If checked, table roll results are not displed in chat.",
+    "SOTDLCG.SettingDisable3Ddice":"Disable animations.",
+    "SOTDLCG.SettingDisable3DdiceHint" : "If set Dice So Nice! animations are disabled.",
     "SOTDLCG.Attribute": "Attribute",
     "SOTDLCG.Fixed": "Core",
     "SOTDLCG.Rolled": "Result",

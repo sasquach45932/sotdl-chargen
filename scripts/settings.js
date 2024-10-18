@@ -18,4 +18,14 @@ export function registerSettings() {
     default: false,
     config: true,
   })
+
+  game.settings.register(settingsKey, "Disable3Ddice", {
+    name: game.i18n.localize("SOTDLCG.SettingDisable3Ddice"),
+    hint: game.i18n.localize("SOTDLCG.SettingDisable3DdiceHint"),
+    scope: "world",
+    type: Boolean,
+    default: false,
+    config: true,
+  })
+
 }
