@@ -9,7 +9,7 @@ It supports ancestries from this Compendia only, using its rolltables and items.
 
 The module supports:
 - Attribute re-rolling, using Formula: `BaseValue-2 + 1d3`
-- `Minus 1 / Plus 1` attribute adjustment
+- `Minus 1 / Plus 1` attribute adjustment.
 
 To start character generation click on this icon.
 ![image](https://github.com/user-attachments/assets/23f19394-5e19-4f08-9b0f-d226b55d0e36)
