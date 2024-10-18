@@ -5,7 +5,11 @@ Inspired by [Roll New Character Stats (RNCS)](https://github.com/MrXofar/roll-ne
 
 This module requires the [Shadow of the Demon Lord Compendia](https://foundryvtt.com/packages/sdlc-1000). It's a paid module you need to purchase it.
 
-It supports ancestries from this Compendia only, using its rolltables and items.
+Module fetches all the ancestries from the `sdlc-*` compendia. Those ancestries which name contains † sign are not fully supported, rolltable results will be rolled and/or applied on actor.
+
+Fully supported ancestries from:
+- Core Compendia
+- Demom Lord's Companion 1
 
 The module supports:
 - Attribute re-rolling, using Formula: `BaseValue-2 + 1d3`
