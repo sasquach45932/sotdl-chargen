@@ -1,0 +1,17 @@
+{
+    "SOTDLCG.ControlTitle": "SotDL Character Generator",
+    "SOTDLCG.DefaultFolderName": "Folder Name.",
+    "SOTDLCG.DefaultFolderNameHint": "If set, actors are created in this folder. Default: CharGen.",    
+    "SOTDLCG.SettingDisableRollChatMessages": "Disable Chat Messages.",
+    "SOTDLCG.SettingDisableRollChatMessagesHint": "If checked, table roll results are not displed in chat.", 
+    "SOTDLCG.Attribute": "Attribute",
+    "SOTDLCG.Fixed": "Core",
+    "SOTDLCG.Rolled": "Result",
+    "SOTDLCG.Bonus": "Bonus",
+    "SOTDLCG.RerollAttributes": "Re-Roll Attributes",
+    "SOTDLCG.Create": "Create Actor",
+    "SOTDLCG.GenderMale": "Male",
+    "SOTDLCG.GenderFemale": "Female",
+    "SOTDLCG.GenderNonBinary": "Non-binary",
+    "SOTDLCGL.sdlc-1000Warning": "Shadow of the Demon Lord Core Compendia module required."
+}

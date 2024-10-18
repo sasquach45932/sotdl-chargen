@@ -1,0 +1,122 @@
+<form>
+    <div style="margin-bottom:5px;">
+        <div class="sotdl-chargen-label .sotdl-chargen ancestry_drop_down">{{localize "DL.CharName"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <input class="sotdl-chargen-input" id="character_name" name="character_name" placeholder="Enter name...">
+        </div>
+    </div>
+
+    <div style="margin-bottom:5px;"></div>
+    <div id="ancestry-selector" class=".sotdl-chargen ancestry_drop_down">
+        <div class="sotdl-chargen-label">{{localize "DL.CharAncestry"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <select id="select_ancestry" name="select_ancestry" style="width:100%;">
+                {{#each ancestries}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+    </div>
+
+    <div style="margin-bottom:5px;"></div>
+    <div id="gender-selector" class=".sotdl-chargen gender_drop_down">
+        <div class="sotdl-chargen-label">{{localize "DL.CharGender"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <select id="select_gender" name="select_gender" style="width:100%;">
+                {{#each gender}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+    </div>
+
+    <div style="margin-bottom:5px;"></div>
+    <div id="disposition-selector" class=".sotdl-chargen disposition_drop_down">
+        <div class="sotdl-chargen-label">{{localize "Token Disposition"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <select id="select_disposition" name="select_disposition" style="width:100%;">
+                {{#each disposition}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+    </div>
+
+
+    <table>
+        <tr id="header_row">
+            <div class="tab">
+                <div class="table-row header">
+                    <th>
+                        <div class="sotdl-chargen-header">{{localize "SOTDLCG.Attribute"}}</div>
+                    </th>
+                    <th>
+                        <div class="sotdl-chargen-header">{{localize "SOTDLCG.Fixed"}}</div>
+                    </th>
+                    <th>
+                        <div class="sotdl-chargen-header">{{localize "SOTDLCG.Rolled"}}</div>
+                    </th>
+                    <th>
+                        <span class="sotdl-chargen-header">{{localize "SOTDLCG.Bonus"}} </span>
+                        <span class="bonus-used sotdl-chargen-header">0</span>
+                        <span class="sotdl-chargen-header">/</span>
+                        <span class="bonus-max sotdl-chargen-header"> {{ancestries.[0].bonus_points}}</span>
+                    </th>
+                </div>
+        </tr>
+        <tr>
+            <div class="table-row">
+        <tr>
+            <td class="sotdl-chargen-row-item">{{localize "DL.AttributeStrength"}}</td>
+            <td class="strFIX sotdl-chargen-row-item">{{ancestries.[0].str}}</td>
+            <td class="str sotdl-chargen-row-item">{{ancestries.[0].str}}</td>
+            <td class="sotdl-chargen-row-item">
+                <span id="str_minus" class="sotdl-chargen-button str_minus">–</span>
+                <span class="strMOD">±0</span>
+                <span id="str_plus" class="sotdl-chargen-button str_plus">+</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="sotdl-chargen-row-item">{{localize "DL.AttributeAgility"}}</td>
+            <td class="agiFIX sotdl-chargen-row-item">{{ancestries.[0].agi}}</td>
+            <td class="agi sotdl-chargen-row-item">{{ancestries.[0].agi}}</td>
+            <td class="sotdl-chargen-row-item">
+                <span id="agi_minus" class="sotdl-chargen-button agi_minus">–</span>
+                <span class="agiMOD">±0</span>
+                <span id="agi_plus" class="sotdl-chargen-button agi_plus">+</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="sotdl-chargen-row-item">{{localize "DL.AttributeIntellect"}}</td>
+            <td class="intFIX sotdl-chargen-row-item">{{ancestries.[0].int}}</td>
+            <td class="int sotdl-chargen-row-item">{{ancestries.[0].int}}</td>
+            <td class="sotdl-chargen-row-item">
+                <span id="int_minus" class="sotdl-chargen-button int_minus">–</span>
+                <span class="intMOD">±0</span>
+                <span id="int_plus" class="sotdl-chargen-button int_plus">+</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="sotdl-chargen-row-item">{{localize "DL.AttributeWill"}}</td>
+            <td class="wilFIX sotdl-chargen-row-item">{{ancestries.[0].wil}}</td>
+            <td class="wil sotdl-chargen-row-item">{{ancestries.[0].wil}}</td>
+            <td class="sotdl-chargen-row-item">
+                <span id="wil_minus" class="sotdl-chargen-button wil_minus">–</span>
+                <span class="wilMOD">±0</span>
+                <span id="wil_plus" class="sotdl-chargen-button wil_plus">+</span>
+            </td>
+        </tr>
+        </div>
+        </tr>
+        </div>
+    </table>
+    <div class="sotdl-chargen-submit">
+        <button type="reset" class="sotdl-chargen-reroll" name="submit" value="1"><i class="fas fa-dice"></i>{{localize
+            "SOTDLCG.RerollAttributes"}}</button>
+        <button type="submit" class="sotdl-chargen-create" name="submit" value="1"><i
+                class="fa-solid fa-user-shield"></i>{{localize "SOTDLCG.Create"}}</button>
+    </div>
+</form>

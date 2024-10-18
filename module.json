@@ -1,0 +1,42 @@
+{
+    "id": "sotdl-chargen",
+    "title": "SotDL Character Generator",
+    "description": "",
+    "version": "1.0.0",
+    "library": "false",
+    "compatibility": {
+        "minimum": 11,
+        "verified": 11,
+        "maximum": 12
+    },
+    "authors": [
+        {
+            "name": "Poly"
+        }
+    ],
+    "relationships": {
+        "systems": [
+            {
+                "id": "demonlord",
+                "type": "system"
+            }
+        ]
+    },
+    "styles":["styles/sotdl-chargen.css"],    
+    "esmodules": [
+        "scripts/sotdl-chargen.js"
+    ],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "language/en.json"
+        }
+    ],
+    "url": "#{URL}#",
+    "manifest": "#{MANIFEST}#",
+    "download": "#{DOWNLOAD}#",
+    "license": "LICENSE",
+    "readme": "README.md",
+    "socket": true
+}
