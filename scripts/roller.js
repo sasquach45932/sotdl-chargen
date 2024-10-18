@@ -52,24 +52,20 @@ export class SDLCGRoller extends FormApplication {
   }
 
   async getData() {
-    let coreAncestriesComp = await game.packs.get('sdlc-1000.ancestries-sdlc-1000')
-    await coreAncestriesComp.getIndex()
-    let coreAncestries = await coreAncestriesComp.getDocuments()
-
-    let dlc1Ancestries = []
-    let dlc1AncestriesComp = await game.packs.get('sdlc-1001.ancestries-sdlc-1001')
-    if (dlc1AncestriesComp) {
-      await dlc1AncestriesComp.getIndex()
-      dlc1Ancestries = await dlc1AncestriesComp.getDocuments()
+    const ancestriesComp = game.packs.filter(
+      p => p.metadata.packageName.startsWith('sdlc-') && p.metadata.id.includes('ancestries'),
+    )
+    let ancestries = []
+    for await (const c of ancestriesComp) {
+      await c.getIndex()
+      ancestries = ancestries.concat(await c.getDocuments())
     }
-
-    const ancestries = [...coreAncestries, ...dlc1Ancestries]
 
     let ancestryArray = []
 
     ancestries.forEach(async ancestry => {
       ancestryArray.push({
-        name: ancestry.name,
+        name: SDLCGRoller.SUPPORTED_PACKS.find(x => x === ancestry.pack) ? ancestry.name : `${ancestry.name} †`,
         id: ancestry.id,
         str: ancestry.system.attributes.strength.value,
         agi: ancestry.system.attributes.agility.value,
@@ -223,7 +219,8 @@ export class SDLCGRoller extends FormApplication {
   }
 
   async _updateObject(event, formData) {
-    if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
+    if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active)
+      game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
     const reRollAttributes = $(event.currentTarget).hasClass('sotdl-chargen-reroll')
 
     let ancestry = this.ancestries.find(x => x.id === formData.select_ancestry)
@@ -231,10 +228,10 @@ export class SDLCGRoller extends FormApplication {
     if (reRollAttributes) {
       this.malusUsed = false
       let resultArray = await this.attributesReRoll()
-      this.str = ancestry.system.attributes.strength.value-2+resultArray[0].result
-      this.agi = ancestry.system.attributes.agility.value-2+resultArray[1].result
-      this.int = ancestry.system.attributes.intellect.value-2+resultArray[2].result
-      this.wil = ancestry.system.attributes.will.value-2+resultArray[3].result
+      this.str = ancestry.system.attributes.strength.value - 2 + resultArray[0].result
+      this.agi = ancestry.system.attributes.agility.value - 2 + resultArray[1].result
+      this.int = ancestry.system.attributes.intellect.value - 2 + resultArray[2].result
+      this.wil = ancestry.system.attributes.will.value - 2 + resultArray[3].result
 
       $('.str').css({ color: 'black' })
       $('.agi').css({ color: 'black' })
@@ -345,7 +342,8 @@ export class SDLCGRoller extends FormApplication {
 
       genActor.sheet.render(true)
     }
-    if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
+    if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active)
+      game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
   }
 
   activateListeners(html) {

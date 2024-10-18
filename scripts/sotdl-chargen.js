@@ -1,6 +1,8 @@
 import { registerSettings } from './settings.js'
 import { SDLCGRoller } from './roller.js'
 
+SDLCGRoller.SUPPORTED_PACKS = ['sdlc-1000.ancestries-sdlc-1000', 'sdlc-1001.ancestries-sdlc-1001']
+
 async function charGen() {
   if (!game.modules.get('sdlc-1000')?.active) {
     console.warn('SotDL-CharGen | sdlc-1000 is NOT active!')
