@@ -1,6 +1,6 @@
 # Shadow Of The Demon Lord - Zero Level Chargen for FoundryVTT
 
-# Module is BETA!
+# Module is BETA! Only manual installation is possible.
 Inspired by [Roll New Character Stats (RNCS)](https://github.com/MrXofar/roll-new-character-stats) module.
 
 This module requires the [Shadow of the Demon Lord Compendia](https://foundryvtt.com/packages/sdlc-1000). It's a paid module you need to purchase it.
