@@ -212,31 +212,30 @@ export class SDLCGRoller extends FormApplication {
     }
   }
 
-  async reRoll(attribute, flavor) {
-    let roll = await new Roll(attribute - 2 + '+ 1d3')
+  async attributesReRoll() {
+    let roll = await new Roll('4d3')
     let result = await roll.evaluate()
     if (!this.settings.DisableRollChatMessages)
       await roll.toMessage({
-        flavor: flavor,
+        flavor: game.i18n.localize('SOTDLCG.ReRollingAttributes'),
       })
-    return result._total
+    return result.terms[0].results
   }
 
   async _updateObject(event, formData) {
-    if (this.settings.Disable3Ddice) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
+    if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
     const reRollAttributes = $(event.currentTarget).hasClass('sotdl-chargen-reroll')
 
     let ancestry = this.ancestries.find(x => x.id === formData.select_ancestry)
 
     if (reRollAttributes) {
       this.malusUsed = false
-      this.str = await this.reRoll(ancestry.system.attributes.strength.value, game.i18n.localize('DL.CreatureStrength'))
-      this.agi = await this.reRoll(ancestry.system.attributes.agility.value, game.i18n.localize('DL.CreatureAgility'))
-      this.int = await this.reRoll(
-        ancestry.system.attributes.intellect.value,
-        game.i18n.localize('DL.CreatureIntellect'),
-      )
-      this.wil = await this.reRoll(ancestry.system.attributes.will.value, game.i18n.localize('DL.CreatureWill'))
+      let resultArray = await this.attributesReRoll()
+      this.str = ancestry.system.attributes.strength.value-2+resultArray[0].result
+      this.agi = ancestry.system.attributes.agility.value-2+resultArray[1].result
+      this.int = ancestry.system.attributes.intellect.value-2+resultArray[2].result
+      this.wil = ancestry.system.attributes.will.value-2+resultArray[3].result
+
       $('.str').css({ color: 'black' })
       $('.agi').css({ color: 'black' })
       $('.int').css({ color: 'black' })
@@ -346,7 +345,7 @@ export class SDLCGRoller extends FormApplication {
 
       genActor.sheet.render(true)
     }
-    if (this.settings.Disable3Ddice) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
+    if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active) game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
   }
 
   activateListeners(html) {

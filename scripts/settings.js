@@ -15,7 +15,7 @@ export function registerSettings() {
     hint: game.i18n.localize("SOTDLCG.SettingDisableRollChatMessagesHint"),
     scope: "world",
     type: Boolean,
-    default: false,
+    default: true,
     config: true,
   })
 
@@ -24,7 +24,7 @@ export function registerSettings() {
     hint: game.i18n.localize("SOTDLCG.SettingDisable3DdiceHint"),
     scope: "world",
     type: Boolean,
-    default: false,
+    default: true,
     config: true,
   })
 

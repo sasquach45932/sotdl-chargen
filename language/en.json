@@ -15,5 +15,6 @@
     "SOTDLCG.GenderMale": "Male",
     "SOTDLCG.GenderFemale": "Female",
     "SOTDLCG.GenderNonBinary": "Non-binary",
-    "SOTDLCGL.sdlc-1000Warning": "Shadow of the Demon Lord Core Compendia module required."
+    "SOTDLCGL.sdlc-1000Warning": "Shadow of the Demon Lord Core Compendia module required.",
+    "SOTDLCG.ReRollingAttributes": "Re-Rolling Attributes"   
 }
