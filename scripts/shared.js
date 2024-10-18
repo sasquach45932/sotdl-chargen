@@ -4,24 +4,16 @@ import * as utils from './utils.js'
 export class SDLCGShared {
   settings = new RegisteredSettings()
   constructor() {
-    this.coreRolltablesComp = []
-    this.coreRolltables = []
+    this.rolltablesComp = []
     this.allRolltables = []
-    this.dlc1Rolltables = []
   }
 
   async getData() {
-    this.coreRolltablesComp = await game.packs.get('sdlc-1000.tables-sdlc-1000')
-    await this.coreRolltablesComp.getIndex()
-    this.coreRolltables = await this.coreRolltablesComp.getDocuments()
-
-    let dlc1RolltablesComp = await game.packs.get('sdlc-1001.tables-sdlc-1001')
-    if (dlc1RolltablesComp) {
-      await dlc1RolltablesComp.getIndex()
-      this.dlc1Rolltables = await dlc1RolltablesComp.getDocuments()
+    this.rolltablesComp = game.packs.filter(p => p.metadata.packageName.startsWith("sdlc-") && p.metadata.id.includes("tables"))
+    for await (const c of this.rolltablesComp) {
+        await c.getIndex()
+        this.allRolltables = this.allRolltables.concat(await c.getDocuments())
     }
-
-    this.allRolltables = [...this.coreRolltables, ...this.dlc1Rolltables]
   }
 
   async rollHuman(genActor, ancestryName, changeling = 0) {
