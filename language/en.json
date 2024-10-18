@@ -1,4 +1,7 @@
 {
+    "SOTDLCG.CachingStart": "Caching rolltables and items.",
+    "SOTDLCG.CachingEnd": "Caching completed.",
+    "SOTDLCG.RollTStart": "Rolling from rolltables.",
     "SOTDLCG.ControlTitle": "SotDL Character Generator",
     "SOTDLCG.DefaultFolderName": "Folder Name.",
     "SOTDLCG.DefaultFolderNameHint": "If set, actors are created in this folder. Default: CharGen.",

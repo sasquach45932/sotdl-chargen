@@ -290,6 +290,8 @@ export class SDLCGRoller extends FormApplication {
       let common = new shared.SDLCGShared()
       await common.getData()
 
+      if (this.settings.DisableRollChatMessages) ui.notifications.info(game.i18n.localize('SOTDLCG.RollTStart'))
+
       switch (ancestry.name) {
         case 'Human':
           await common.rollHuman(genActor, ancestry.name)

@@ -6,14 +6,43 @@ export class SDLCGShared {
   constructor() {
     this.rolltablesComp = []
     this.allRolltables = []
+    this.professions = []
+    this.weapons = []
+    this.items = []
+    this.armors = []
+    this.ammunitions = []
   }
 
   async getData() {
-    this.rolltablesComp = game.packs.filter(p => p.metadata.packageName.startsWith("sdlc-") && p.metadata.id.includes("tables"))
+    ui.notifications.info(game.i18n.localize('SOTDLCG.CachingStart'))
+    this.rolltablesComp = game.packs.filter(
+      p => p.metadata.packageName.startsWith('sdlc-') && p.metadata.id.includes('tables'),
+    )
     for await (const c of this.rolltablesComp) {
-        await c.getIndex()
-        this.allRolltables = this.allRolltables.concat(await c.getDocuments())
+      await c.getIndex()
+      this.allRolltables = this.allRolltables.concat(await c.getDocuments())
     }
+
+    let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
+    await professionsComp.getIndex()
+    this.professions = await professionsComp.getDocuments()
+
+    let weaponsComp = await game.packs.get('demonlord.weapons')
+    await weaponsComp.getIndex()
+    this.weapons = await weaponsComp.getDocuments()
+
+    let itemsComp = await game.packs.get('sdlc-1000.items-sdlc-1000')
+    await itemsComp.getIndex()
+    this.items = await itemsComp.getDocuments()
+
+    let armorsComp = await game.packs.get('demonlord.armor')
+    await armorsComp.getIndex()
+    this.armors = await armorsComp.getDocuments()
+
+    let ammunitionsComp = await game.packs.get('demonlord.ammunition')
+    await ammunitionsComp.getIndex()
+    this.ammunitions = await ammunitionsComp.getDocuments()
+    ui.notifications.info(game.i18n.localize('SOTDLCG.CachingEnd'))
   }
 
   async rollHuman(genActor, ancestryName, changeling = 0) {
@@ -435,10 +464,7 @@ export class SDLCGShared {
           await actor.update({
             'system.description': actor.system.description + 'Profession (From Background): ' + professionName + '<br>',
           })
-          let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
-          await professionsComp.getIndex()
-          let professions = await professionsComp.getDocuments()
-          utils.addInventoryItem(actor, professions, 'Artisan')
+          utils.addInventoryItem(actor, this.professions, 'Artisan')
           break
         case 13:
           let langToSpeak = await utils.addtionalLangToSpeak(actor)
@@ -458,7 +484,7 @@ export class SDLCGShared {
             label3,
             600,
           )
-          await utils.addInventoryItem(actor, weapons, option)
+          await utils.addInventoryItem(actor, this.weapons, option)
           break
         case 20:
           let cp = await utils.rollDice('2d6')
@@ -493,10 +519,7 @@ export class SDLCGShared {
           await actor.update({
             'system.description': actor.system.description + 'Profession (From Background): ' + professionName + '<br>',
           })
-          let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
-          await professionsComp.getIndex()
-          let professions = await professionsComp.getDocuments()
-          utils.addInventoryItem(actor, professions, professionName)
+          utils.addInventoryItem(actor, this.professions, professionName)
           break
         case 13:
           let langToSpeak = await utils.addtionalLangToSpeak(actor)
@@ -820,10 +843,7 @@ export class SDLCGShared {
           }
           break
         case 18:
-          let weaponsComp = await game.packs.get('demonlord.weapons')
-          await weaponsComp.getIndex()
-          let weapons = await weaponsComp.getDocuments()
-          await utils.addInventoryItem(actor, weapons, 'Sword')
+          await utils.addInventoryItem(actor, this.weapons, 'Sword')
           break
         case 19:
           await actor.update({
@@ -857,7 +877,7 @@ export class SDLCGShared {
     }
 
     if (desc === 'Halfling Background') {
-      let z = 0      
+      let z = 0
       switch (r.roll._total) {
         case 1:
           let insanity = await utils.rollDice('1d3+1')
@@ -875,10 +895,7 @@ export class SDLCGShared {
           await actor.update({
             'system.description': actor.system.description + 'Profession (From Background): ' + professionName + '<br>',
           })
-          let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
-          await professionsComp.getIndex()
-          let professions = await professionsComp.getDocuments()
-          utils.addInventoryItem(actor, professions, professionName)
+          utils.addInventoryItem(actor, this.professions, professionName)
           break
         case 6:
           description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
@@ -1034,22 +1051,6 @@ export class SDLCGShared {
       'system.wealth.description': lifeStyleText,
     })
 
-    let weaponsComp = await game.packs.get('demonlord.weapons')
-    await weaponsComp.getIndex()
-    let weapons = await weaponsComp.getDocuments()
-
-    let itemsComp = await game.packs.get('sdlc-1000.items-sdlc-1000')
-    await itemsComp.getIndex()
-    let items = await itemsComp.getDocuments()
-
-    let armorsComp = await game.packs.get('demonlord.armor')
-    await armorsComp.getIndex()
-    let armors = await armorsComp.getDocuments()
-
-    let ammunitionsComp = await game.packs.get('demonlord.ammunition')
-    await ammunitionsComp.getIndex()
-    let ammunitions = await ammunitionsComp.getDocuments()
-
     //Destitue
     if (r.roll._total >= 3 && r.roll._total <= 4) {
       await utils.chooseClubOrSling(actor)
@@ -1058,7 +1059,7 @@ export class SDLCGShared {
         'system.wealth.bits': actor.system.wealth.bits + bits,
       })
 
-      let itemArr = await utils.addInventoryItem(actor, armors, 'Clothing')
+      let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
       await actor.updateEmbeddedDocuments('Item', [
         {
           _id: itemArr[0]._id,
@@ -1067,7 +1068,7 @@ export class SDLCGShared {
         },
       ])
 
-      await utils.addInventoryItem(actor, items, 'Pouch')
+      await utils.addInventoryItem(actor, this.items, 'Pouch')
     }
     //Poor
     if (r.roll._total >= 5 && r.roll._total <= 8) {
@@ -1078,24 +1079,24 @@ export class SDLCGShared {
       option = await utils.chooseFromThree('Choose a weapon!', label1, label2, label3)
 
       if (option === label3) {
-        await utils.addInventoryItem(actor, weapons, 'Sling')
-        await utils.addInventoryItem(actor, ammunitions, 'Stones', 20)
+        await utils.addInventoryItem(actor, this.weapons, 'Sling')
+        await utils.addInventoryItem(actor, this.ammunitions, 'Stones', 20)
       } else {
-        await utils.addInventoryItem(actor, weapons, option)
+        await utils.addInventoryItem(actor, this.weapons, option)
       }
 
-      await utils.addInventoryItem(actor, items, 'Candle')
-      await utils.addInventoryItem(actor, items, 'Pouch')
-      await utils.addInventoryItem(actor, items, 'Sack')
-      await utils.addInventoryItem(actor, items, 'Tinderbox')
-      await utils.addInventoryItem(actor, items, 'Waterskin')
+      await utils.addInventoryItem(actor, this.items, 'Candle')
+      await utils.addInventoryItem(actor, this.items, 'Pouch')
+      await utils.addInventoryItem(actor, this.items, 'Sack')
+      await utils.addInventoryItem(actor, this.items, 'Tinderbox')
+      await utils.addInventoryItem(actor, this.items, 'Waterskin')
 
       let bits = await utils.rollDice('2d6')
       await actor.update({
         'system.wealth.bits': actor.system.wealth.bits + bits,
       })
 
-      let itemArr = await utils.addInventoryItem(actor, armors, 'Clothing')
+      let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
       await actor.updateEmbeddedDocuments('Item', [
         {
           _id: itemArr[0]._id,
@@ -1113,26 +1114,26 @@ export class SDLCGShared {
       option = await utils.chooseFromThree('Choose a weapon!', label1, label2, label3)
 
       if (option === label3) {
-        await utils.addInventoryItem(actor, weapons, 'Sling')
-        await utils.addInventoryItem(actor, ammunitions, 'Stones', 20)
+        await utils.addInventoryItem(actor, this.weapons, 'Sling')
+        await utils.addInventoryItem(actor, this.ammunitions, 'Stones', 20)
       } else {
-        await utils.addInventoryItem(actor, weapons, option)
+        await utils.addInventoryItem(actor, this.weapons, option)
       }
 
-      await utils.addInventoryItem(actor, weapons, 'Dagger')
+      await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
-      await utils.addInventoryItem(actor, items, 'Backpack')
-      await utils.addInventoryItem(actor, items, 'Rations (1 week)')
-      await utils.addInventoryItem(actor, items, 'Tinderbox')
-      await utils.addInventoryItem(actor, items, 'Torch', 2)
-      await utils.addInventoryItem(actor, items, 'Waterskin')
+      await utils.addInventoryItem(actor, this.items, 'Backpack')
+      await utils.addInventoryItem(actor, this.items, 'Rations (1 week)')
+      await utils.addInventoryItem(actor, this.items, 'Tinderbox')
+      await utils.addInventoryItem(actor, this.items, 'Torch', 2)
+      await utils.addInventoryItem(actor, this.items, 'Waterskin')
 
       let cp = await utils.rollDice('1d6')
       await actor.update({
         'system.wealth.cp': actor.system.wealth.cp + cp,
       })
 
-      let itemArr = await utils.addInventoryItem(actor, armors, 'Clothing')
+      let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
       await actor.updateEmbeddedDocuments('Item', [
         {
           _id: itemArr[0]._id,
@@ -1150,18 +1151,18 @@ export class SDLCGShared {
       option = await utils.chooseFromThree('Choose a weapon!', label1, label2, label3)
 
       if (option === label3) {
-        await utils.addInventoryItem(actor, weapons, 'Sling')
-        await utils.addInventoryItem(actor, ammunitions, 'Stones', 20)
+        await utils.addInventoryItem(actor, this.weapons, 'Sling')
+        await utils.addInventoryItem(actor, this.ammunitions, 'Stones', 20)
       } else {
-        await utils.addInventoryItem(actor, weapons, option)
+        await utils.addInventoryItem(actor, this.weapons, option)
       }
 
-      await utils.addInventoryItem(actor, weapons, 'Dagger')
+      await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
-      await utils.addInventoryItem(actor, items, 'Backpack')
-      await utils.addInventoryItem(actor, items, 'Cloak')
+      await utils.addInventoryItem(actor, this.items, 'Backpack')
+      await utils.addInventoryItem(actor, this.items, 'Cloak')
 
-      let itemArr = await utils.addInventoryItem(actor, armors, 'Clothing')
+      let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
 
       await actor.updateEmbeddedDocuments('Item', [
         {
@@ -1171,13 +1172,13 @@ export class SDLCGShared {
         },
       ])
 
-      await utils.addInventoryItem(actor, items, 'Healing Potion')
-      await utils.addInventoryItem(actor, items, 'Pouch')
-      await utils.addInventoryItem(actor, items, 'Rations (1 week)')
-      await utils.addInventoryItem(actor, items, 'Rope, coil (20 yards)')
-      await utils.addInventoryItem(actor, items, 'Tinderbox')
-      await utils.addInventoryItem(actor, items, 'Torch', 2)
-      await utils.addInventoryItem(actor, items, 'Waterskin')
+      await utils.addInventoryItem(actor, this.items, 'Healing Potion')
+      await utils.addInventoryItem(actor, this.items, 'Pouch')
+      await utils.addInventoryItem(actor, this.items, 'Rations (1 week)')
+      await utils.addInventoryItem(actor, this.items, 'Rope, coil (20 yards)')
+      await utils.addInventoryItem(actor, this.items, 'Tinderbox')
+      await utils.addInventoryItem(actor, this.items, 'Torch', 2)
+      await utils.addInventoryItem(actor, this.items, 'Waterskin')
 
       let cp = await utils.rollDice('2d6')
       await actor.update({
@@ -1202,21 +1203,21 @@ export class SDLCGShared {
           await actor.createEmbeddedDocuments('Item', [incantation])
           break
         case 'Small Shield':
-          await utils.addInventoryItem(actor, armors, 'Small Shield')
-          await utils.addInventoryItem(actor, weapons, 'Small Shield')
+          await utils.addInventoryItem(actor, this.armors, 'Small Shield')
+          await utils.addInventoryItem(actor, this.weapons, 'Small Shield')
           break
         default:
-          await utils.addInventoryItem(actor, items, option)
+          await utils.addInventoryItem(actor, this.items, option)
       }
     }
     //Wealthy
     if (r.roll._total === 17) {
-      await utils.addInventoryItem(actor, weapons, 'Dagger')
+      await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
-      await utils.addInventoryItem(actor, items, 'Backpack')
-      await utils.addInventoryItem(actor, items, 'Cloak')
+      await utils.addInventoryItem(actor, this.items, 'Backpack')
+      await utils.addInventoryItem(actor, this.items, 'Cloak')
 
-      let itemArr = await utils.addInventoryItem(actor, armors, 'Clothing')
+      let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
 
       await actor.updateEmbeddedDocuments('Item', [
         {
@@ -1226,14 +1227,14 @@ export class SDLCGShared {
         },
       ])
 
-      await utils.addInventoryItem(actor, items, 'Oil, flask', 2)
-      await utils.addInventoryItem(actor, items, 'Healing Potion')
-      await utils.addInventoryItem(actor, items, 'Lantern')
-      await utils.addInventoryItem(actor, items, 'Pouch')
-      await utils.addInventoryItem(actor, items, 'Rations (1 week)')
-      await utils.addInventoryItem(actor, items, 'Rope, coil (20 yards)')
-      await utils.addInventoryItem(actor, items, 'Tinderbox')
-      await utils.addInventoryItem(actor, items, 'Waterskin')
+      await utils.addInventoryItem(actor, this.items, 'Oil, flask', 2)
+      await utils.addInventoryItem(actor, this.items, 'Healing Potion')
+      await utils.addInventoryItem(actor, this.items, 'Lantern')
+      await utils.addInventoryItem(actor, this.items, 'Pouch')
+      await utils.addInventoryItem(actor, this.items, 'Rations (1 week)')
+      await utils.addInventoryItem(actor, this.items, 'Rope, coil (20 yards)')
+      await utils.addInventoryItem(actor, this.items, 'Tinderbox')
+      await utils.addInventoryItem(actor, this.items, 'Waterskin')
 
       let ss = await utils.rollDice('1d6')
       await actor.update({
@@ -1258,19 +1259,19 @@ export class SDLCGShared {
           await actor.createEmbeddedDocuments('Item', [incantation])
           break
         case 'Small Shield':
-          await utils.addInventoryItem(actor, armors, 'Small Shield')
-          await utils.addInventoryItem(actor, weapons, 'Small Shield')
+          await utils.addInventoryItem(actor, this.armors, 'Small Shield')
+          await utils.addInventoryItem(actor, this.weapons, 'Small Shield')
           break
         default:
-          await utils.addInventoryItem(actor, items, option)
+          await utils.addInventoryItem(actor, this.items, option)
       }
     }
     // Rich
     if (r.roll._total === 18) {
-      await utils.addInventoryItem(actor, weapons, 'Dagger')
+      await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
-      await utils.addInventoryItem(actor, items, 'Cloak')
-      let itemArr = await utils.addInventoryItem(actor, armors, 'Clothing')
+      await utils.addInventoryItem(actor, this.items, 'Cloak')
+      let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
       await actor.updateEmbeddedDocuments('Item', [
         {
           _id: itemArr[0]._id,
@@ -1279,9 +1280,9 @@ export class SDLCGShared {
         },
       ])
 
-      await utils.addInventoryItem(actor, items, 'Healing Potion')
-      await utils.addInventoryItem(actor, items, 'Rations (1 week)')
-      await utils.addInventoryItem(actor, items, 'Waterskin')
+      await utils.addInventoryItem(actor, this.items, 'Healing Potion')
+      await utils.addInventoryItem(actor, this.items, 'Rations (1 week)')
+      await utils.addInventoryItem(actor, this.items, 'Waterskin')
 
       let ss = await utils.rollDice('2d6')
       await actor.update({
@@ -1401,10 +1402,6 @@ export class SDLCGShared {
     }
 
     let professionName = r.results[0].text
-
-    let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
-    await professionsComp.getIndex()
-    let professions = await professionsComp.getDocuments()
     let pPos
     let pName
 
@@ -1413,20 +1410,20 @@ export class SDLCGShared {
       case 2:
         pPos = professionName.indexOf('.')
         if (pPos === -1) {
-          utils.addInventoryItem(actor, professions, professionName)
+          utils.addInventoryItem(actor, this.professions, professionName)
         } else {
           pName = professionName.substring(0, pPos)
-          utils.addInventoryItem(actor, professions, pName)
+          utils.addInventoryItem(actor, this.professions, pName)
         }
         break
       // Religious Professions contains additional text
       case 5:
         pPos = professionName.indexOf('.')
         pName = professionName.substring(0, pPos)
-        utils.addInventoryItem(actor, professions, pName)
+        utils.addInventoryItem(actor, this.professions, pName)
         break
       default:
-        utils.addInventoryItem(actor, professions, professionName)
+        utils.addInventoryItem(actor, this.professions, professionName)
     }
 
     await actor.update({
