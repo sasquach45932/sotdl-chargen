@@ -1,2 +1,2 @@
 # sotdl-chargen
-Shadow Of The Demon Lord - Zero Level Chargen for FounryVTT
+Shadow Of The Demon Lord - Zero Level Chargen for FoundryVTT
