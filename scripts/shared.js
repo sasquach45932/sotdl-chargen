@@ -6,12 +6,22 @@ export class SDLCGShared {
   constructor() {
     this.coreRolltablesComp = []
     this.coreRolltables = []
+    this.allRolltables = []
+    this.dlc1Rolltables = []
   }
 
   async getData() {
     this.coreRolltablesComp = await game.packs.get('sdlc-1000.tables-sdlc-1000')
     await this.coreRolltablesComp.getIndex()
     this.coreRolltables = await this.coreRolltablesComp.getDocuments()
+
+    let dlc1RolltablesComp = await game.packs.get('sdlc-1001.tables-sdlc-1001')
+    if (dlc1RolltablesComp) {
+      await dlc1RolltablesComp.getIndex()
+      this.dlc1Rolltables = await dlc1RolltablesComp.getDocuments()
+    }
+
+    this.allRolltables = [...this.coreRolltables, ...this.dlc1Rolltables]
   }
 
   async rollHuman(genActor, ancestryName, changeling = 0) {
@@ -76,7 +86,7 @@ export class SDLCGShared {
       'system.description': genActor.system.description + `<br><strong>APPARENT CHARACTERISTICS STARTS.</strong><br>`,
     })
     await this.rollintoDesc(genActor, `${ancestryName} Apparent Gender`)
-    let table = await this.coreRolltables.find(r => r.name === 'Changeling Apparent Ancestry')
+    let table = await this.allRolltables.find(r => r.name === 'Changeling Apparent Ancestry')
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     let description = r.results[0].text
     let pPos = description.indexOf('.')
@@ -110,13 +120,33 @@ export class SDLCGShared {
     await this.rollintoDesc(genActor, `${ancestryName} Personality`)
   }
 
+  async rollFaun(genActor, ancestryName, changeling = 0) {
+    await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
+    await this.rollintoDesc(genActor, `${ancestryName} Build`)
+    await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
+    if (!changeling) {
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+    }
+  }
+
+  async rollHalfling(genActor, ancestryName, changeling = 0) {
+    await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
+    await this.rollintoDesc(genActor, `${ancestryName} Build`)
+    await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
+    if (!changeling) {
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      await this.rollReligion(genActor, `${ancestryName} Religion`)
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+    }
+  }
+
   async rollintoDesc(actor, desc, changeling = 0) {
-    let table = await this.coreRolltables.find(r => r.name === desc)
+    let table = await this.allRolltables.find(r => r.name === desc)
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     let description = r.results[0].text
     if (desc === 'Human Age') {
       let age
-      let dif
       if (r.roll._total === 3) {
         age = '11'
       }
@@ -144,7 +174,6 @@ export class SDLCGShared {
 
     if (desc === 'Clockwork Age') {
       let age
-      let dif
       if (r.roll._total >= 3 && r.roll._total <= 8) {
         age = '5'
       }
@@ -168,7 +197,6 @@ export class SDLCGShared {
 
     if (desc === 'Dwarf Age') {
       let age
-      let dif
       if (r.roll._total === 3) {
         age = '20'
       }
@@ -200,7 +228,6 @@ export class SDLCGShared {
 
     if (desc === 'Goblin Age') {
       let age
-      let dif
       if (r.roll._total === 3) {
         age = '6'
       }
@@ -228,7 +255,6 @@ export class SDLCGShared {
 
     if (desc === 'Orc Age') {
       let age
-      let dif
       if (r.roll._total === 3) {
         age = '8'
       }
@@ -256,7 +282,6 @@ export class SDLCGShared {
 
     if (desc === 'Changeling True Age') {
       let age
-      let dif
       if (r.roll._total === 3) {
         age = '8'
       }
@@ -280,6 +305,65 @@ export class SDLCGShared {
         age = '61+'
       }
       await actor.update({ 'system.appearance.age': age })
+    }
+
+    if (desc === 'Faun Age' || desc === 'Halfling Age') {
+      let age
+      if (r.roll._total === 3) {
+        age = '11'
+      }
+      if (r.roll._total >= 4 && r.roll._total <= 7) {
+        //      age = "12-17";
+        age = 11 + (await utils.rollDice('1d6'))
+      }
+      if (r.roll._total >= 8 && r.roll._total <= 12) {
+        //      age = "18-35";
+        age = 17 + (await utils.rollDice('1d18'))
+      }
+      if (r.roll._total >= 13 && r.roll._total <= 15) {
+        //      age = "36-55";
+        age = 35 + (await utils.rollDice('1d120'))
+      }
+      if (r.roll._total >= 16 && r.roll._total <= 17) {
+        //      age = "56-75";
+        age = 55 + (await utils.rollDice('1d20'))
+      }
+      if (r.roll._total === 18) {
+        age = '76+'
+      }
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
+    }
+
+    if (desc === 'Faun Build') {
+      if (r.roll._total === 5 || r.roll._total === 6) {
+        await actor.update({
+          'system.appearance.height': '3-1/2 ft',
+        })
+      }
+      if (r.roll._total === 18) {
+        let actorEffect = actor.effects.find(x => x.name === 'Faun (Level 0)')
+        let agility = actorEffect.changes.find(c => c.key === 'system.attributes.agility.value')
+        agility.value = parseInt(agility.value) - 2
+        actorEffect.changes.push({ key: 'system.attributes.strength.value', mode: 2, priority: 2, value: '+2' })
+        await actorEffect.update({ changes: actorEffect.changes })
+        description = description + ` (Strength increased, Agility reduced!)`
+      }
+    }
+
+    if (desc === 'Halfling Build') {
+      let z = 0
+      if (r.roll._total === 3) {
+        await actor.update({
+          'system.appearance.height': '2 ft',
+          'system.appearance.weight': '40 lb',
+        })
+      }
+      if (r.roll._total === 18) {
+        let actorEffect = await actor.effects.find(x => x.name === 'Halfling (Level 0)')
+        let size = actorEffect.changes.find(c => c.key === 'system.characteristics.size')
+        size.value = '1'
+        await actorEffect.update({ changes: actorEffect.changes })
+      }
     }
 
     if (desc === 'Human Background') {
@@ -353,7 +437,7 @@ export class SDLCGShared {
           description = description.replace('[[/r 2d6]]', await utils.rollDice('2d6'))
           break
         case 12:
-          table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Common Professions'.toLowerCase())
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Common Professions'.toLowerCase())
           let professionName = await table.results.find(x => x.id === '71s0oGq92rBQbAao').text
 
           await actor.update({
@@ -410,7 +494,7 @@ export class SDLCGShared {
           description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
           break
         case 12:
-          table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
           r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
           let professionName = r.results[0].text
 
@@ -521,8 +605,6 @@ export class SDLCGShared {
         await actorEffect.update({ changes: actorEffect.changes })
         await actor.update({
           'system.appearance.height': '3 ft',
-        })
-        await actor.update({
           'system.appearance.weight': '50 lb',
         })
       }
@@ -534,16 +616,12 @@ export class SDLCGShared {
 
         await actor.update({
           'system.appearance.height': '4 ft',
-        })
-        await actor.update({
           'system.appearance.weight': '75 lb',
         })
       }
       if (r.roll._total >= 10 && r.roll._total <= 15) {
         await actor.update({
           'system.appearance.height': '6 ft',
-        })
-        await actor.update({
           'system.appearance.weight': '300 lb',
         })
       }
@@ -562,8 +640,6 @@ export class SDLCGShared {
 
         await actor.update({
           'system.appearance.height': '10 ft',
-        })
-        await actor.update({
           'system.appearance.weight': '750 lb',
         })
         description = description + ` (Speed and Defense reduced!)`
@@ -583,8 +659,6 @@ export class SDLCGShared {
 
         await actor.update({
           'system.appearance.height': '10 ft',
-        })
-        await actor.update({
           'system.appearance.weight': '750 lb',
         })
         description = description + ` (Speed increased, Defense reduced!)`
@@ -772,6 +846,86 @@ export class SDLCGShared {
       }
     }
 
+    if (desc === 'Faun Background') {
+      if (r.roll._total === 17) {
+        let language = actor.items.find(i => i.name === 'Common Tongue')
+        if (language) {
+          await actor.updateEmbeddedDocuments('Item', [{ _id: language._id, 'system.read': true }])
+          await actor.update({
+            'system.description':
+              actor.system.description + 'You learned read ' + language.name + '. (Faun Background)<br>',
+          })
+        }
+      }
+      if (r.roll._total === 20) {
+        let cp = await utils.rollDice('2d6')
+        description = description.replace('[[/r 2d6]]', cp)
+        await actor.update({ 'system.wealth.cp': cp })
+      }
+    }
+
+    if (desc === 'Halfling Background') {
+      let z = 0      
+      switch (r.roll._total) {
+        case 1:
+          let insanity = await utils.rollDice('1d3+1')
+          description = description.replace('[[/r 1d3 + 1]]', insanity)
+          await actor.update({
+            'system.characteristics.insanity.value': insanity,
+          })
+          break
+        case 3:
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
+          r = await table.draw({
+            displayChat: !this.settings.DisableRollChatMessages,
+          })
+          let professionName = r.results[0].text
+          await actor.update({
+            'system.description': actor.system.description + 'Profession (From Background): ' + professionName + '<br>',
+          })
+          let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
+          await professionsComp.getIndex()
+          let professions = await professionsComp.getDocuments()
+          utils.addInventoryItem(actor, professions, professionName)
+          break
+        case 6:
+          description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
+          break
+        case 8:
+          let langToSpeak = await utils.addtionalLangToSpeak(actor)
+          await actor.update({
+            'system.description':
+              actor.system.description + 'You learned to speak ' + langToSpeak.name + '. (Halfling Background)<br>',
+          })
+          break
+        case 12:
+          description = description.replace('[[/r 2d6 + 3]]', await utils.rollDice('2d6+3'))
+          break
+        case 14:
+          let language = actor.items.find(i => i.name === 'Common Tongue')
+          if (language) {
+            await actor.updateEmbeddedDocuments('Item', [
+              {
+                _id: language._id,
+                'system.read': true,
+              },
+            ])
+            await actor.update({
+              'system.description':
+                actor.system.description + 'You learned read ' + language.name + '. (Halfling Background)<br>',
+            })
+          }
+          break
+        case 20:
+          let cp = await utils.rollDice('3d6')
+          description = description.replace('[[/r 3d6]]', cp)
+          await actor.update({
+            'system.wealth.cp': cp,
+          })
+          break
+      }
+    }
+
     await actor.update({
       'system.description': actor.system.description + description + '<br>',
     })
@@ -783,7 +937,7 @@ export class SDLCGShared {
     let result
     let notInventoryItemIdList = []
     let itemType = 'item'
-    let table = await this.coreRolltables.find(r => r.name === 'Interesting Things Table ' + iThingsTNr)
+    let table = await this.allRolltables.find(r => r.name === 'Interesting Things Table ' + iThingsTNr)
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     let description = r.results[0].text
     description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
@@ -841,10 +995,10 @@ export class SDLCGShared {
 
   async rollPersonalityTraits(actor) {
     let text = 'You are '
-    let table = await this.coreRolltables.find(r => r.name === 'Positive Personality Traits')
+    let table = await this.allRolltables.find(r => r.name === 'Positive Personality Traits')
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     text += r.results[0].text.toLowerCase() + ' and '
-    table = await this.coreRolltables.find(r => r.name === 'Negative Personality Traits')
+    table = await this.allRolltables.find(r => r.name === 'Negative Personality Traits')
     r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     text += r.results[0].text.toLowerCase() + '.'
     await actor.update({
@@ -853,7 +1007,7 @@ export class SDLCGShared {
   }
 
   async rollReligion(actor, religion) {
-    let table = await this.coreRolltables.find(r => r.name === religion)
+    let table = await this.allRolltables.find(r => r.name === religion)
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     await actor.update({ 'system.religion.value': r.results[0].text })
   }
@@ -867,7 +1021,7 @@ export class SDLCGShared {
     let label4
     let label5
     let option
-    let table = await this.coreRolltables.find(r => r.name === 'Wealth')
+    let table = await this.allRolltables.find(r => r.name === 'Wealth')
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     let description = r.results[0].text
 
@@ -1151,10 +1305,9 @@ export class SDLCGShared {
     }
   }
 
-
   async rollRealProfession(actor) {
     let professionCategory
-    let table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Profession Types'.toLowerCase())
+    let table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Profession Types'.toLowerCase())
     let r = await table.draw({
       displayChat: !this.settings.DisableRollChatMessages,
     })
@@ -1164,7 +1317,7 @@ export class SDLCGShared {
     switch (professionTableNumber) {
       case 1:
         professionCategory = 'Academic Profession'
-        table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Academic Professions'.toLowerCase())
+        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Academic Professions'.toLowerCase())
         r = await table.draw({
           displayChat: !this.settings.DisableRollChatMessages,
         })
@@ -1194,21 +1347,21 @@ export class SDLCGShared {
         break
       case 2:
         professionCategory = 'Common Profession'
-        table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Common Professions'.toLowerCase())
+        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Common Professions'.toLowerCase())
         r = await table.draw({
           displayChat: !this.settings.DisableRollChatMessages,
         })
         break
       case 3:
         professionCategory = 'Criminal Profession'
-        table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
+        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
         r = await table.draw({
           displayChat: !this.settings.DisableRollChatMessages,
         })
         break
       case 4:
         professionCategory = 'Martial Profession'
-        table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Martial Professions'.toLowerCase())
+        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Martial Professions'.toLowerCase())
         r = await table.draw({
           displayChat: !this.settings.DisableRollChatMessages,
         })
@@ -1216,7 +1369,7 @@ export class SDLCGShared {
       case 5:
         professionCategory = 'Religious Profession'
         let nlang
-        table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Religious Professions'.toLowerCase())
+        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Religious Professions'.toLowerCase())
         r = await table.draw({
           displayChat: !this.settings.DisableRollChatMessages,
         })
@@ -1248,7 +1401,7 @@ export class SDLCGShared {
         break
       case 6:
         professionCategory = 'Wilderness Profession'
-        table = await this.coreRolltables.find(r => r.name.toLowerCase() === 'Wilderness Professions'.toLowerCase())
+        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Wilderness Professions'.toLowerCase())
         r = await table.draw({
           displayChat: !this.settings.DisableRollChatMessages,
         })
@@ -1287,7 +1440,6 @@ export class SDLCGShared {
     await actor.update({
       'system.description': actor.system.description + professionCategory + ': ' + professionName + '.<br>',
     })
-
   }
 
   async rollProfession(actor) {

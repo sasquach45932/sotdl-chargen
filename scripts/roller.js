@@ -57,11 +57,11 @@ export class SDLCGRoller extends FormApplication {
     let coreAncestries = await coreAncestriesComp.getDocuments()
 
     let dlc1Ancestries = []
-    // let dlc1AncestriesComp = await game.packs.get('sdlc-1001.ancestries-sdlc-1001')
-    // if (dlc1AncestriesComp) {
-    //   await dlc1AncestriesComp.getIndex()
-    //   dlc1Ancestries = await dlc1AncestriesComp.getDocuments()
-    // }
+    let dlc1AncestriesComp = await game.packs.get('sdlc-1001.ancestries-sdlc-1001')
+    if (dlc1AncestriesComp) {
+      await dlc1AncestriesComp.getIndex()
+      dlc1Ancestries = await dlc1AncestriesComp.getDocuments()
+    }
 
     const ancestries = [...coreAncestries, ...dlc1Ancestries]
 
@@ -311,6 +311,12 @@ export class SDLCGRoller extends FormApplication {
           break
         case 'Clockwork':
           await common.rollClockwork(genActor, ancestry.name)
+          break
+        case 'Faun':
+          await common.rollFaun(genActor, ancestry.name)
+          break
+        case 'Halfling':
+          await common.rollHalfling(genActor, ancestry.name)
           break
       }
 
