@@ -11,7 +11,7 @@
     },
     "authors": [
         {
-            "name": "Poly"
+            "name": "sasquach45932"
         }
     ],
     "relationships": {
@@ -22,7 +22,9 @@
             }
         ]
     },
-    "styles":["styles/sotdl-chargen.css"],    
+    "styles": [
+        "styles/sotdl-chargen.css"
+    ],
     "esmodules": [
         "scripts/sotdl-chargen.js"
     ],
@@ -31,6 +33,16 @@
             "lang": "en",
             "name": "English",
             "path": "language/en.json"
+        }
+    ],
+    "requires": [
+        {
+            "id": "sdlc-1000",
+            "type": "module",
+            "manifest": "URL",
+            "compatibility": {
+                "verified": "1.0.0"
+            }
         }
     ],
     "url": "#{URL}#",
