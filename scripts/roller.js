@@ -317,6 +317,8 @@ export class SDLCGRoller extends FormApplication {
         case 'Halfling':
           await common.rollHalfling(genActor, ancestry.name)
           break
+        default:
+          await common.rollNotYetImplemented(genActor, ancestry.name)
       }
 
       await common.rollPersonalityTraits(genActor)

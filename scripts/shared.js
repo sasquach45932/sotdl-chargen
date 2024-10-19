@@ -45,6 +45,20 @@ export class SDLCGShared {
     ui.notifications.info(game.i18n.localize('SOTDLCG.CachingEnd'))
   }
 
+  async rollNotYetImplemented(genActor, ancestryName, changeling = 0) {
+    await this.rollintoDesc(genActor, `${ancestryName} Age`, 0)
+    await this.rollintoDesc(genActor, `${ancestryName} Build`)
+    await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
+    await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+    await this.rollintoDesc(genActor, `${ancestryName} True Form`)
+    await this.rollintoDesc(genActor, `${ancestryName} Humanoid Build`)
+    await this.rollintoDesc(genActor, `${ancestryName} Humanoid Appearance`)
+    await this.rollintoDesc(genActor, `${ancestryName} Caste`)
+    await this.rollintoDesc(genActor, `${ancestryName} Mannerism`)
+    await this.rollintoDesc(genActor, `${ancestryName} Feline Appearance`)
+  }
+
   async rollHuman(genActor, ancestryName, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
@@ -164,6 +178,7 @@ export class SDLCGShared {
 
   async rollintoDesc(actor, desc, changeling = 0) {
     let table = await this.allRolltables.find(r => r.name === desc)
+    if (table === undefined) return
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
     let description = r.results[0].text
     if (desc === 'Human Age') {
