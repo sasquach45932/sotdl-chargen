@@ -18,7 +18,7 @@ To start character generation click on this icon.
 
 # Manual installation
 
-Paste the following link in the Install Module interface of your Foundry VTT instance:
+Paste the following URL in the "Manifest URL" field:
 
 `https://github.com/sasquach45932/sotdl-chargen/releases/latest/download/module.json`
 
