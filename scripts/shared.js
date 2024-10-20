@@ -11,6 +11,7 @@ export class SDLCGShared {
     this.items = []
     this.armors = []
     this.ammunitions = []
+    this.currentProfession = {professionCategory: String, professionName: String}
   }
 
   async getData() {
@@ -477,7 +478,7 @@ export class SDLCGShared {
           let professionName = await table.results.find(x => x.id === '71s0oGq92rBQbAao').text
 
           await actor.update({
-            'system.description': actor.system.description + 'Profession (From Background): ' + professionName + '<br>',
+            'system.description': actor.system.description + professionName + '. (Dwarf Background)<br>',
           })
           utils.addInventoryItem(actor, this.professions, 'Artisan')
           break
@@ -532,7 +533,7 @@ export class SDLCGShared {
           let professionName = r.results[0].text
 
           await actor.update({
-            'system.description': actor.system.description + 'Profession (From Background): ' + professionName + '<br>',
+            'system.description': actor.system.description + professionName  + '. (Goblin Background)<br>',
           })
           utils.addInventoryItem(actor, this.professions, professionName)
           break
@@ -568,6 +569,9 @@ export class SDLCGShared {
             'system.characteristics.insanity.value': insanity,
           })
           await this.rollRealProfession(actor)
+          await actor.update({
+            'system.description': actor.system.description + this.currentProfession.professionCategory + ': ' + this.currentProfession.professionName + '. (Clockwork Background)<br>',
+          })          
           break
         case 3:
           years = await utils.rollDice('1d20')
@@ -1441,9 +1445,11 @@ export class SDLCGShared {
         utils.addInventoryItem(actor, this.professions, professionName)
     }
 
-    await actor.update({
-      'system.description': actor.system.description + professionCategory + ': ' + professionName + '.<br>',
-    })
+    // await actor.update({
+    //   'system.description': actor.system.description + professionCategory + ': ' + professionName + '.<br>',
+    // })
+    this.currentProfession = {professionCategory: professionCategory, professionName: professionName}
+
   }
 
   async rollProfession(actor) {
@@ -1498,6 +1504,9 @@ export class SDLCGShared {
           break
         case label3:
           await this.rollRealProfession(actor)
+          await actor.update({
+            'system.description': actor.system.description + this.currentProfession.professionCategory + ': ' + this.currentProfession.professionName + '.<br>',
+          })          
           break
       }
     }
