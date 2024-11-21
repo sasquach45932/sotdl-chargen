@@ -1,7 +1,7 @@
 import { registerSettings } from './settings.js'
 import { SDLCGRoller } from './roller.js'
 
-SDLCGRoller.SUPPORTED_PACKS = ['sdlc-1000.ancestries-sdlc-1000', 'sdlc-1001.ancestries-sdlc-1001']
+SDLCGRoller.SUPPORTED_PACKS = ['sdlc-1000.ancestries-sdlc-1000', 'sdlc-1001.ancestries-sdlc-1001','sdlc-1024.ancestries-sdlc-1024']
 
 async function charGen() {
   if (!game.modules.get('sdlc-1000')?.active) {
