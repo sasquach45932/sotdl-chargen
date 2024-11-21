@@ -24,6 +24,11 @@ export class SDLCGShared {
       this.allRolltables = this.allRolltables.concat(await c.getDocuments())
     }
 
+    // Prevent rolling the very same profession
+    this.allRolltables.forEach((rolltable) => {
+      if (rolltable.name.includes("Professions")) rolltable.replacement = false
+    });
+
     let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
     await professionsComp.getIndex()
     this.professions = await professionsComp.getDocuments()
@@ -1445,9 +1450,6 @@ export class SDLCGShared {
         utils.addInventoryItem(actor, this.professions, professionName)
     }
 
-    // await actor.update({
-    //   'system.description': actor.system.description + professionCategory + ': ' + professionName + '.<br>',
-    // })
     this.currentProfession = {professionCategory: professionCategory, professionName: professionName}
 
   }

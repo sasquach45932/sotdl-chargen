@@ -63,17 +63,22 @@ export class SDLCGRoller extends FormApplication {
 
     let ancestryArray = []
 
-    ancestries.forEach(async ancestry => {
+    for (var ancestry of ancestries) {
       ancestryArray.push({
         name: SDLCGRoller.SUPPORTED_PACKS.find(x => x === ancestry.pack) ? ancestry.name : `${ancestry.name} †`,
+        pack: ancestry.pack,
         id: ancestry.id,
-        str: ancestry.system.attributes.strength.value,
-        agi: ancestry.system.attributes.agility.value,
-        int: ancestry.system.attributes.intellect.value,
-        wil: ancestry.system.attributes.will.value,
+        str: ancestry.system.attributes.strength.formula ? ancestry.system.attributes.strength.formula : ancestry.system.attributes.strength.formula,
+        agi: ancestry.system.attributes.agility.formula ? ancestry.system.attributes.agility.formula : ancestry.system.attributes.agility.value,
+        int: ancestry.system.attributes.intellect.formula ? ancestry.system.attributes.intellect.formula : ancestry.system.attributes.intellect.value,
+        wil: ancestry.system.attributes.will.formula ? ancestry.system.attributes.will.formula : ancestry.system.attributes.will.value,
+        strRolled: ancestry.system.attributes.strength.formula ? await this.attributeReRoll(ancestry.system.attributes.strength.formula) : ancestry.system.attributes.strength.value,
+        agiRolled: ancestry.system.attributes.agility.formula ? await this.attributeReRoll(ancestry.system.attributes.agility.formula) : ancestry.system.attributes.agility.value,
+        intRolled: ancestry.system.attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula) : ancestry.system.attributes.intellect.value,
+        wilRolled: ancestry.system.attributes.will.formula ? await this.attributeReRoll(ancestry.system.attributes.will.formula) : ancestry.system.attributes.will.value,
         bonus_points: ancestry.name === 'Human' ? 1 : 0,
       })
-    })
+    }
 
     let i = 0
     this.genderArray.push({
@@ -127,15 +132,31 @@ export class SDLCGRoller extends FormApplication {
     return super.render(force, context)
   }
 
-  ancestryChange(event) {
+  async ancestryChange(event) {
     let ancestry = this.ancestries.find(x => x.id === $('#select_ancestry').val())
     this.malusUsed = false
     $('#select_gender').val(0)
     $('#select_disposition').val('-2')
-    $('.str').text(ancestry.system.attributes.strength.value)
-    $('.agi').text(ancestry.system.attributes.agility.value)
-    $('.int').text(ancestry.system.attributes.intellect.value)
-    $('.wil').text(ancestry.system.attributes.will.value)
+    $('.str').text(
+      ancestry.system.attributes.strength.formula
+        ? await this.attributeReRoll(ancestry.system.attributes.strength.formula)
+        : ancestry.system.attributes.strength.value,
+    )
+    $('.agi').text(
+      ancestry.system.attributes.agility.formula
+        ? await this.attributeReRoll(ancestry.system.attributes.agility.formula)
+        : ancestry.system.attributes.agility.value,
+    )
+    $('.int').text(
+      ancestry.system.attributes.intellect.formula
+        ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula)
+        : ancestry.system.attributes.intellect.value,
+    )
+    $('.wil').text(
+      ancestry.system.attributes.will.formula
+        ? await this.attributeReRoll(ancestry.system.attributes.will.formula)
+        : ancestry.system.attributes.will.value,
+    )
     $('.strMOD').text(utils.setSign('0'))
     $('.agiMOD').text(utils.setSign('0'))
     $('.intMOD').text(utils.setSign('0'))
@@ -144,10 +165,26 @@ export class SDLCGRoller extends FormApplication {
     $('.agi').css({ color: 'black' })
     $('.int').css({ color: 'black' })
     $('.wil').css({ color: 'black' })
-    $('.strFIX').text(ancestry.system.attributes.strength.value)
-    $('.agiFIX').text(ancestry.system.attributes.agility.value)
-    $('.intFIX').text(ancestry.system.attributes.intellect.value)
-    $('.wilFIX').text(ancestry.system.attributes.will.value)
+    $('.strFIX').text(
+      ancestry.system.attributes.strength.formula
+        ? ancestry.system.attributes.strength.formula
+        : ancestry.system.attributes.strength.value,
+    )
+    $('.agiFIX').text(
+      ancestry.system.attributes.agility.formula
+        ? ancestry.system.attributes.agility.formula
+        : ancestry.system.attributes.agility.value,
+    )
+    $('.intFIX').text(
+      ancestry.system.attributes.intellect.formula
+        ? ancestry.system.attributes.intellect.formula
+        : ancestry.system.attributes.intellect.value,
+    )
+    $('.wilFIX').text(
+      ancestry.system.attributes.will.formula
+        ? ancestry.system.attributes.will.formula
+        : ancestry.system.attributes.will.value,
+    )
     this.str = ancestry.system.attributes.strength.value
     this.agi = ancestry.system.attributes.agility.value
     this.int = ancestry.system.attributes.intellect.value
@@ -218,6 +255,16 @@ export class SDLCGRoller extends FormApplication {
     return result.terms[0].results
   }
 
+  async attributeReRoll(formula) {
+    let roll = await new Roll(formula)
+    let result = await roll.evaluate()
+    if (!this.settings.DisableRollChatMessages)
+      await roll.toMessage({
+        flavor: game.i18n.localize('SOTDLCG.ReRollingAttributes'),
+      })
+    return result._total
+  }
+
   async _updateObject(event, formData) {
     if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active)
       game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
@@ -227,12 +274,27 @@ export class SDLCGRoller extends FormApplication {
 
     if (reRollAttributes) {
       this.malusUsed = false
-      let resultArray = await this.attributesReRoll()
-      this.str = ancestry.system.attributes.strength.value - 2 + resultArray[0].result
-      this.agi = ancestry.system.attributes.agility.value - 2 + resultArray[1].result
-      this.int = ancestry.system.attributes.intellect.value - 2 + resultArray[2].result
-      this.wil = ancestry.system.attributes.will.value - 2 + resultArray[3].result
 
+      if (!ancestry.system.attributes.strength.formula) {
+        let resultArray = await this.attributesReRoll()
+        this.str = ancestry.system.attributes.strength.value - 2 + resultArray[0].result
+        this.agi = ancestry.system.attributes.agility.value - 2 + resultArray[1].result
+        this.int = ancestry.system.attributes.intellect.value - 2 + resultArray[2].result
+        this.wil = ancestry.system.attributes.will.value - 2 + resultArray[3].result
+      } else {
+        this.str = ancestry.system.attributes.strength.formula
+          ? await this.attributeReRoll(ancestry.system.attributes.strength.formula)
+          : ancestry.system.attributes.strength.value
+        this.agi = ancestry.system.attributes.agility.formula
+          ? await this.attributeReRoll(ancestry.system.attributes.agility.formula)
+          : ancestry.system.attributes.agility.value
+        this.int = ancestry.system.attributes.intellect.formula
+          ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula)
+          : ancestry.system.attributes.intellect.value
+        this.wil = ancestry.system.attributes.will.formula
+          ? await this.attributeReRoll(ancestry.system.attributes.will.formula)
+          : ancestry.system.attributes.will.value
+      }
       $('.str').css({ color: 'black' })
       $('.agi').css({ color: 'black' })
       $('.int').css({ color: 'black' })

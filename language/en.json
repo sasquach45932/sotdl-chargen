@@ -10,7 +10,7 @@
     "SOTDLCG.SettingDisable3Ddice":"Disable animations.",
     "SOTDLCG.SettingDisable3DdiceHint" : "If set Dice So Nice! animations are disabled.",
     "SOTDLCG.Attribute": "Attribute",
-    "SOTDLCG.Fixed": "Core",
+    "SOTDLCG.Fixed": "Base",
     "SOTDLCG.Rolled": "Result",
     "SOTDLCG.Bonus": "Bonus",
     "SOTDLCG.RerollAttributes": "Re-Roll Attributes",
