@@ -2,7 +2,7 @@
     "id": "sotdl-chargen",
     "title": "SotDL Character Generator",
     "description": "",
-    "version": "#{VERSION}#",
+    "version": "1.2.0",
     "library": "false",
     "compatibility": {
         "minimum": 11,
