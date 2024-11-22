@@ -5,6 +5,12 @@ Inspired by [Roll New Character Stats (RNCS)](https://github.com/MrXofar/roll-ne
 
 This module requires the [Shadow of the Demon Lord Compendia](https://foundryvtt.com/packages/sdlc-1000). It's a paid module you need to purchase it.
 
+Fully supported paid modules:
+
+- [Demon Lord's Companion Compendia](https://foundryvtt.com/packages/sdlc-1001)
+
+- [Hunger in the Void Compendia](https://foundryvtt.com/packages/sdlc-1024)
+
 Module fetches all the ancestries from the `sdlc-*` compendia. Those ancestries which name contains † sign are not fully supported, not all rolltable will be rolled and results will NOT be applied on actor.
 
 The module supports:
