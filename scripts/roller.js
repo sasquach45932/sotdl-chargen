@@ -64,21 +64,40 @@ export class SDLCGRoller extends FormApplication {
     let ancestryArray = []
 
     for (var ancestry of ancestries) {
-      ancestryArray.push({
-        name: SDLCGRoller.SUPPORTED_PACKS.find(x => x === ancestry.pack) ? ancestry.name : `${ancestry.name} †`,
-        pack: ancestry.pack,
-        id: ancestry.id,
-        str: ancestry.system.attributes.strength.formula ? ancestry.system.attributes.strength.formula : ancestry.system.attributes.strength.formula,
-        agi: ancestry.system.attributes.agility.formula ? ancestry.system.attributes.agility.formula : ancestry.system.attributes.agility.value,
-        int: ancestry.system.attributes.intellect.formula ? ancestry.system.attributes.intellect.formula : ancestry.system.attributes.intellect.value,
-        wil: ancestry.system.attributes.will.formula ? ancestry.system.attributes.will.formula : ancestry.system.attributes.will.value,
-        strRolled: ancestry.system.attributes.strength.formula ? await this.attributeReRoll(ancestry.system.attributes.strength.formula) : ancestry.system.attributes.strength.value,
-        agiRolled: ancestry.system.attributes.agility.formula ? await this.attributeReRoll(ancestry.system.attributes.agility.formula) : ancestry.system.attributes.agility.value,
-        intRolled: ancestry.system.attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula) : ancestry.system.attributes.intellect.value,
-        wilRolled: ancestry.system.attributes.will.formula ? await this.attributeReRoll(ancestry.system.attributes.will.formula) : ancestry.system.attributes.will.value,
-        bonus_points: ancestry.name === 'Human' ? 1 : 0,
-      })
-    }
+      if (ancestry.name != 'Incarnation') {
+          ancestryArray.push({
+              name: SDLCGRoller.SUPPORTED_PACKS.find(x => x === ancestry.pack) ? ancestry.name : `${ancestry.name} †`,
+              pack: ancestry.pack,
+              id: ancestry.id,
+              str: ancestry.system.attributes.strength.formula ? ancestry.system.attributes.strength.formula : ancestry.system.attributes.strength.value,
+              agi: ancestry.system.attributes.agility.formula ? ancestry.system.attributes.agility.formula : ancestry.system.attributes.agility.value,
+              int: ancestry.system.attributes.intellect.formula ? ancestry.system.attributes.intellect.formula : ancestry.system.attributes.intellect.value,
+              wil: ancestry.system.attributes.will.formula ? ancestry.system.attributes.will.formula : ancestry.system.attributes.will.value,
+              strRolled: ancestry.system.attributes.strength.formula ? await this.attributeReRoll(ancestry.system.attributes.strength.formula) : ancestry.system.attributes.strength.value,
+              agiRolled: ancestry.system.attributes.agility.formula ? await this.attributeReRoll(ancestry.system.attributes.agility.formula) : ancestry.system.attributes.agility.value,
+              intRolled: ancestry.system.attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula) : ancestry.system.attributes.intellect.value,
+              wilRolled: ancestry.system.attributes.will.formula ? await this.attributeReRoll(ancestry.system.attributes.will.formula) : ancestry.system.attributes.will.value,
+              bonus_points: ancestry.name === 'Human' ? 1 : 0,
+          })
+
+          if (!SDLCGRoller.INCARNATION_EXCLUSION_LIST.find(x => x === ancestry.name) && game.modules.get('sdlc-1024')?.active) {
+              ancestryArray.push({
+                  name: `Incarnation (${ancestry.name})`,
+                  pack: ancestry.pack,
+                  id: ancestry.id,
+                  str: ancestry.system.attributes.strength.formula ? ancestry.system.attributes.strength.formula : ancestry.system.attributes.strength.value,
+                  agi: ancestry.system.attributes.agility.formula ? ancestry.system.attributes.agility.formula : ancestry.system.attributes.agility.value,
+                  int: ancestry.system.attributes.intellect.formula ? ancestry.system.attributes.intellect.formula : ancestry.system.attributes.intellect.value,
+                  wil: ancestry.system.attributes.will.formula ? ancestry.system.attributes.will.formula : ancestry.system.attributes.will.value,
+                  strRolled: ancestry.system.attributes.strength.formula ? await this.attributeReRoll(ancestry.system.attributes.strength.formula) : ancestry.system.attributes.strength.value,
+                  agiRolled: ancestry.system.attributes.agility.formula ? await this.attributeReRoll(ancestry.system.attributes.agility.formula) : ancestry.system.attributes.agility.value,
+                  intRolled: ancestry.system.attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula) : ancestry.system.attributes.intellect.value,
+                  wilRolled: ancestry.system.attributes.will.formula ? await this.attributeReRoll(ancestry.system.attributes.will.formula) : ancestry.system.attributes.will.value,
+                  bonus_points: ancestry.name === 'Human' ? 1 : 0,
+              })
+          }
+      }
+  }
 
     let i = 0
     this.genderArray.push({
@@ -266,11 +285,14 @@ export class SDLCGRoller extends FormApplication {
   }
 
   async _updateObject(event, formData) {
+    let incarnationAncestry
     if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active)
       game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
     const reRollAttributes = $(event.currentTarget).hasClass('sotdl-chargen-reroll')
 
     let ancestry = this.ancestries.find(x => x.id === formData.select_ancestry)
+    let ancestryName = ancestry.name
+    let incarnation = $("#select_ancestry option:selected").text().startsWith('Incarnation')
 
     if (reRollAttributes) {
       this.malusUsed = false
@@ -282,18 +304,10 @@ export class SDLCGRoller extends FormApplication {
         this.int = ancestry.system.attributes.intellect.value - 2 + resultArray[2].result
         this.wil = ancestry.system.attributes.will.value - 2 + resultArray[3].result
       } else {
-        this.str = ancestry.system.attributes.strength.formula
-          ? await this.attributeReRoll(ancestry.system.attributes.strength.formula)
-          : ancestry.system.attributes.strength.value
-        this.agi = ancestry.system.attributes.agility.formula
-          ? await this.attributeReRoll(ancestry.system.attributes.agility.formula)
-          : ancestry.system.attributes.agility.value
-        this.int = ancestry.system.attributes.intellect.formula
-          ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula)
-          : ancestry.system.attributes.intellect.value
-        this.wil = ancestry.system.attributes.will.formula
-          ? await this.attributeReRoll(ancestry.system.attributes.will.formula)
-          : ancestry.system.attributes.will.value
+        this.str = ancestry.system.attributes.strength.formula ? await this.attributeReRoll(ancestry.system.attributes.strength.formula) : ancestry.system.attributes.strength.value
+        this.agi = ancestry.system.attributes.agility.formula ? await this.attributeReRoll(ancestry.system.attributes.agility.formula) : ancestry.system.attributes.agility.value
+        this.int = ancestry.system.attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.attributes.intellect.formula) : ancestry.system.attributes.intellect.value
+        this.wil = ancestry.system.attributes.will.formula ? await this.attributeReRoll(ancestry.system.attributes.will.formula) : ancestry.system.attributes.will.value
       }
       $('.str').css({ color: 'black' })
       $('.agi').css({ color: 'black' })
@@ -317,10 +331,7 @@ export class SDLCGRoller extends FormApplication {
       let genActor = await this.createGenActor(
         formData.character_name.length !== 0 ? utils.capitalize(formData.character_name) : ancestry.name,
       )
-      await genActor.createEmbeddedDocuments('Item', [ancestry])
-
-      let ancestryOnActor = await genActor.items.find(x => x.type === 'ancestry')
-      let ancestryOnActorClone = foundry.utils.deepClone(ancestryOnActor)
+      let ancestryOnActorClone = ancestry
 
       await genActor.updateSource({
         'system.appearance.sex': this.genderArray[formData.select_gender].name,
@@ -349,44 +360,89 @@ export class SDLCGRoller extends FormApplication {
         },
       })
 
+      if (incarnation) {
+        await ancestryOnActorClone.updateSource({
+            name: `Incarnation (${ancestry.name})`
+        })
+        await ancestryOnActorClone.updateSource({
+            'system.attributes': {
+                intellect: {
+                    value: 10,
+                },
+                will: {
+                    value: 10,
+                },
+            },
+        })
+        await genActor.update({
+            'system.characteristics.corruption.value': 0
+        })
+        await genActor.update({
+            'system.characteristics.insanity.value': 0
+        })
+
+        incarnationAncestry = this.ancestries.find(x => x.name === 'Incarnation')
+        let incarnationTalents = incarnationAncestry.system.talents
+
+        for (const incarnationTalent of incarnationTalents) {
+            if (SDLCGRoller.INCARNATION_TALENT_LIST.find(x => x === incarnationTalent.name)) {
+                if (ancestryOnActorClone.system.talents.find(x => x.name === 'Darksight' && incarnationTalent.name === 'Darksight')) continue
+                ancestryOnActorClone.system.talents.push(incarnationTalent)
+            }
+        }
+    }
+
+    await ancestryOnActorClone.updateSource({'system.talents':  ancestryOnActorClone.system.talents})
+    await genActor.createEmbeddedDocuments('Item', [ancestryOnActorClone])
+
       let common = new shared.SDLCGShared()
       await common.getData()
 
       if (this.settings.DisableRollChatMessages) ui.notifications.info(game.i18n.localize('SOTDLCG.RollTStart'))
 
-      switch (ancestry.name) {
+      switch (ancestryName) {
         case 'Human':
-          await common.rollHuman(genActor, ancestry.name)
+          await common.rollHuman(genActor, ancestryName)
           break
         case 'Orc':
-          await common.rollOrc(genActor, ancestry.name)
+          await common.rollOrc(genActor, ancestryName)
           break
         case 'Goblin':
-          await common.rollGoblin(genActor, ancestry.name)
+          await common.rollGoblin(genActor, ancestryName)
           break
         case 'Dwarf':
-          await common.rollDwarf(genActor, ancestry.name)
+          await common.rollDwarf(genActor, ancestryName)
           break
         case 'Changeling':
-          await common.rollChangeling(genActor, ancestry.name)
+          await common.rollChangeling(genActor, ancestryName)
           break
         case 'Clockwork':
-          await common.rollClockwork(genActor, ancestry.name)
+          await common.rollClockwork(genActor, ancestryName)
           break
         case 'Faun':
-          await common.rollFaun(genActor, ancestry.name)
+          await common.rollFaun(genActor, ancestryName)
           break
         case 'Halfling':
-          await common.rollHalfling(genActor, ancestry.name)
+          await common.rollHalfling(genActor, ancestryName)
           break
         default:
-          await common.rollNotYetImplemented(genActor, ancestry.name)
+          await common.rollNotYetImplemented(genActor, ancestryName)
       }
 
       await common.rollPersonalityTraits(genActor)
       await common.rollIntrestingThing(genActor)
       await common.rollWealth(genActor)
       await common.rollProfession(genActor)
+      if (incarnation) {
+        await genActor.update({
+          'system.description': genActor.system.description + `<br><strong>INCARNATION SECTION START.</strong><br>`,
+        })
+        await common.rollintoDesc(genActor, `Incarnation Manifestation`)
+        await common.rollintoDesc(genActor, `Incarnation Personality`)
+        await genActor.update({
+          'system.description': genActor.system.description + `<strong>INCARNATION SECTION ENDS.</strong><br>`,
+        })
+      }
       this.close()
 
       let strMod = genActor.system.attributes.strength.modifier
