@@ -51,7 +51,45 @@ export class SDLCGShared {
     ui.notifications.info(game.i18n.localize('SOTDLCG.CachingEnd'))
   }
 
-  async rollNotYetImplemented(genActor, ancestryName, changeling = 0) {
+  async rollMarkOfDarkness(actor, compendia) {
+    let tableName = 'Mark of Darkness'
+    if (compendia === 'sdlc-1015') tableName = 'Diabolical Marks of Darkness'
+    let table = await this.allRolltables.find(r => r.name === tableName)
+    if (table === undefined) return
+    let r = await table.draw({
+        displayChat: !this.settings.DisableRollChatMessages
+    })
+    let description = r.results[0].text
+
+    if (compendia === 'sdlc-1015') {
+        switch (r.roll._total) {
+            case 8:
+                description = r.results[0].text
+                description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
+                break
+            case 18:
+                description = r.results[0].text
+                let heathPenalty = await utils.rollDice('2d6')
+                description = description.replace('[[/r 2d6]]', heathPenalty)
+
+                let actorEffect = await actor.effects.find(x => x.flags.sourceType === 'ancestry' && x.name.includes('(Level 0)'))
+                actorEffect.changes.push({
+                    key: 'system.characteristics.health.max',
+                    mode: 2,
+                    priority: 2,
+                    value: heathPenalty * -1
+                })
+                await actorEffect.update({
+                    changes: actorEffect.changes
+                })
+                description = description + ` (Health reduced!)`
+        }
+    }
+    await actor.update({
+        'system.description': actor.system.description + `Your mark of darkness: ${description}` + '<br>',
+    })
+}
+  async rollNotYetImplemented(genActor, ancestryName) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, 0)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
@@ -65,50 +103,62 @@ export class SDLCGShared {
     await this.rollintoDesc(genActor, `${ancestryName} Feline Appearance`)
   }
 
-  async rollHuman(genActor, ancestryName, changeling = 0) {
+  async rollHuman(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
-      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
-      await this.rollReligion(genActor, `${ancestryName} Religion`)
+        if (compendia === 'sdlc-1015')
+            await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+        else
+            await this.rollintoDesc(genActor, `${ancestryName} Background`)
+        await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+        await this.rollReligion(genActor, `${ancestryName} Religion`)
     }
-  }
+}
 
-  async rollOrc(genActor, ancestryName, changeling = 0) {
+  async rollOrc(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015')
+        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+    else
+        await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
 
-  async rollGoblin(genActor, ancestryName, changeling = 0) {
+  async rollGoblin(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Distinctive Appearance`)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Odd Habit`)
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015')
+        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else
+        await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
 
-  async rollDwarf(genActor, ancestryName, changeling = 0) {
+  async rollDwarf(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Hatred`)
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015')
+        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else
+        await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
 
-  async rollClockwork(genActor, ancestryName, changeling = 0) {
+  async rollClockwork(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Purpose`)
@@ -116,12 +166,15 @@ export class SDLCGShared {
     }
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015')
+        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else
+        await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
 
-  async rollChangeling(genActor, ancestryName) {
+  async rollChangeling(genActor, ancestryName, compendia) {
     await this.rollintoDesc(genActor, `${ancestryName} True Age`)
     await genActor.update({
       'system.description': genActor.system.description + `<br><strong>APPARENT CHARACTERISTICS STARTS.</strong><br>`,
@@ -137,48 +190,69 @@ export class SDLCGShared {
     })
 
     if (r.roll._total >= 3 && r.roll._total <= 4) {
-      await this.rollGoblin(genActor, `Goblin`, 1)
+      await this.rollGoblin(genActor, `Goblin`, compendia, 1)
     }
 
     if (r.roll._total >= 5 && r.roll._total <= 7) {
-      await this.rollDwarf(genActor, `Dwarf`, 1)
+      await this.rollDwarf(genActor, `Dwarf`, compendia, 1)
     }
 
     if (r.roll._total >= 8 && r.roll._total <= 15) {
-      await this.rollHuman(genActor, `Human`, 1)
+      await this.rollHuman(genActor, `Human`, compendia, 1)
     }
 
     if (r.roll._total >= 16 && r.roll._total <= 17) {
-      await this.rollOrc(genActor, `Orc`, 1)
+      await this.rollOrc(genActor, `Orc`, compendia, 1)
     }
 
     await genActor.update({
       'system.description': genActor.system.description + `<strong>APPARENT CHARACTERISTICS ENDS.</strong><br><br>`,
     })
 
-    await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    if (compendia === 'sdlc-1015')
+      await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+    else
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
     await this.rollintoDesc(genActor, `${ancestryName} Quirk`)
     await this.rollintoDesc(genActor, `${ancestryName} Personality`)
   }
 
-  async rollFaun(genActor, ancestryName, changeling = 0) {
+  async rollFaun(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015')
+        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else
+        await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
 
-  async rollHalfling(genActor, ancestryName, changeling = 0) {
+  async rollHalfling(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015')
+        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else
+        await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollReligion(genActor, `${ancestryName} Religion`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+    }
+  }
+
+  async rollCambion(genActor, ancestryName, compendia, changeling = 0) {
+    await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
+    await this.rollintoDesc(genActor, `${ancestryName} Build`)
+    await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
+    if (!changeling) {
+      await this.rollintoDesc(genActor, `${ancestryName} Upbringing`)
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)      
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      await this.rollMarkOfDarkness(genActor, compendia)
     }
   }
 
@@ -376,6 +450,37 @@ export class SDLCGShared {
       if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
+    if (desc === 'Cambion Age') {
+      let age
+      if (r.roll._total === 3) {
+        age = '11'
+      }
+      if (r.roll._total >= 4 && r.roll._total <= 6) {
+        //      age = "12-17";
+        age = 11 + (await utils.rollDice('1d6'))
+      }
+      if (r.roll._total >= 7 && r.roll._total <= 12) {
+        //      age = "18-35";
+        age = 17 + (await utils.rollDice('1d18'))
+      }
+      if (r.roll._total >= 13 && r.roll._total <= 15) {
+        //      age = "36-55";
+        age = 35 + (await utils.rollDice('1d120'))
+        await actor.update({ 'system.characteristics.corruption.value': 1 })
+      }
+      if (r.roll._total >= 16 && r.roll._total <= 17) {
+        //      age = "56-75";
+        age = 55 + (await utils.rollDice('1d20'))
+        await actor.update({ 'system.characteristics.corruption.value': 2 })
+      }
+      if (r.roll._total === 18) {
+        age = '76+'
+        await actor.update({ 'system.characteristics.corruption.value': 3 })
+      }
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
+    }
+    
+
     if (desc === 'Faun Build') {
       if (r.roll._total === 5 || r.roll._total === 6) {
         await actor.update({
@@ -401,10 +506,11 @@ export class SDLCGShared {
         })
       }
       if (r.roll._total === 18) {
-        let actorEffect = await actor.effects.find(x => x.name === 'Halfling (Level 0)')
-        let size = actorEffect.changes.find(c => c.key === 'system.characteristics.size')
-        size.value = '1'
-        await actorEffect.update({ changes: actorEffect.changes })
+        await actor.update({
+          'system.appearance.height': '5 ft',
+          'system.appearance.weight': '198 lb',
+          'system.characteristics.size': '1',          
+        })
       }
     }
 
@@ -632,30 +738,26 @@ export class SDLCGShared {
       let defense
       if (r.roll._total === 3) {
         actorEffect = await actor.effects.find(x => x.name === 'Clockwork (Level 0)')
-        size = actorEffect.changes.find(c => c.key === 'system.characteristics.size')
-        size.value = '1/2'
-        actorEffect.changes.push({ key: 'system.characteristics.health.max', mode: 2, priority: 2, value: '-5' })
-        await actorEffect.update({ changes: actorEffect.changes })
-      }
-      if (r.roll._total >= 3 && r.roll._total <= 5) {
-        actorEffect = await actor.effects.find(x => x.name === 'Clockwork (Level 0)')
-        size = actorEffect.changes.find(c => c.key === 'system.characteristics.size')
-        size.value = '1/2'
+        actorEffect.changes.push({ key: 'system.characteristics.health.max', mode: 2, priority: 2, value: '-5' })        
         await actorEffect.update({ changes: actorEffect.changes })
         await actor.update({
           'system.appearance.height': '3 ft',
           'system.appearance.weight': '50 lb',
+          'system.characteristics.size': '1/2',          
+        })
+      }
+      if (r.roll._total >= 4 && r.roll._total <= 5) {
+        await actor.update({
+          'system.appearance.height': '3 ft',
+          'system.appearance.weight': '50 lb',
+          'system.characteristics.size': '1/2',          
         })
       }
       if (r.roll._total >= 6 && r.roll._total <= 9) {
-        actorEffect = await actor.effects.find(x => x.name === 'Clockwork (Level 0)')
-        size = actorEffect.changes.find(c => c.key === 'system.characteristics.size')
-        size.value = '1/2'
-        await actorEffect.update({ changes: actorEffect.changes })
-
         await actor.update({
           'system.appearance.height': '4 ft',
           'system.appearance.weight': '75 lb',
+          'system.characteristics.size': '1/2',
         })
       }
       if (r.roll._total >= 10 && r.roll._total <= 15) {
@@ -673,13 +775,12 @@ export class SDLCGShared {
         speed = actorEffect.changes.find(c => c.key === 'system.characteristics.speed')
         speed.value = '-4'
 
-        size = actorEffect.changes.find(c => c.key === 'system.characteristics.size')
-        size.value = '2'
         await actorEffect.update({ changes: actorEffect.changes })
 
         await actor.update({
           'system.appearance.height': '10 ft',
           'system.appearance.weight': '750 lb',
+          'system.characteristics.size': '2',          
         })
         description = description + ` (Speed and Defense reduced!)`
       }
@@ -691,14 +792,12 @@ export class SDLCGShared {
         actorEffect = await actor.effects.find(x => x.name === 'Clockwork (Level 0)')
         speed = actorEffect.changes.find(c => c.key === 'system.characteristics.speed')
         speed.value = '0'
-
-        size = actorEffect.changes.find(c => c.key === 'system.characteristics.size')
-        size.value = '2'
         await actorEffect.update({ changes: actorEffect.changes })
 
         await actor.update({
           'system.appearance.height': '10 ft',
           'system.appearance.weight': '750 lb',
+          'system.characteristics.size': '2',               
         })
         description = description + ` (Speed increased, Defense reduced!)`
       }
@@ -958,6 +1057,42 @@ export class SDLCGShared {
           break
       }
     }
+
+    if (desc === 'Cambion Background') {
+      switch (r.roll._total) {
+        case 2:
+          let corruption = ++actor.system.characteristics.corruption.value
+          await actor.update({ 'system.characteristics.corruption.value': corruption })
+          break
+        case 20:
+          let cp = await utils.rollDice('2d6')
+          description = description.replace('[[/r 2d6]]', cp)
+          await actor.update({ 'system.wealth.cp': cp })
+          break
+      }
+    }
+
+    if (desc === 'Diabolical Backgrounds') {
+      let corruption 
+      switch (r.roll._total) {
+        case 2:
+          corruption = ++actor.system.characteristics.corruption.value
+          await actor.update({ 'system.characteristics.corruption.value': corruption })
+          break
+        case 4:
+          let corruptionN = await utils.rollDice('1d3')
+          corruption = actor.system.characteristics.corruption.value + corruptionN
+          description = description.replace('[[/r 1d3]]', corruptionN)
+          await actor.update({ 'system.characteristics.corruption.value': corruption })
+          break
+        case 5:
+           let insanityN = await utils.rollDice('1d6')
+           let insanity = actor.system.characteristics.insanity.value + insanityN
+           description = description.replace('[[/r 1d6]]', insanityN)
+           await actor.update({ 'system.characteristics.insanity.value': insanity })
+           break          
+      }
+    }    
 
     await actor.update({
       'system.description': actor.system.description + description + '<br>',

@@ -1,9 +1,21 @@
 import { registerSettings } from './settings.js'
 import { SDLCGRoller } from './roller.js'
 
-SDLCGRoller.SUPPORTED_PACKS = ['sdlc-1000.ancestries-sdlc-1000', 'sdlc-1001.ancestries-sdlc-1001','sdlc-1024.ancestries-sdlc-1024']
-SDLCGRoller.INCARNATION_EXCLUSION_LIST = ['Changeling','Elf','Goblin','Hobgoblin','Pixie','Sylph']
-SDLCGRoller.INCARNATION_TALENT_LIST = ['Darksight', 'Pure Spirit', 'Dissolution', 'Powerful Ancestry', 'Unnerving Demeanor']
+SDLCGRoller.SUPPORTED_PACKS = [
+  'sdlc-1000.ancestries-sdlc-1000',
+  'sdlc-1001.ancestries-sdlc-1001',
+  'sdlc-1015.ancestries-sdlc-1015',  
+  'sdlc-1024.ancestries-sdlc-1024',
+]
+SDLCGRoller.INCARNATION_EXCLUSION_LIST = ['Changeling', 'Elf', 'Goblin', 'Hobgoblin', 'Pixie', 'Sylph']
+SDLCGRoller.INCARNATION_TALENT_LIST = [
+  'Darksight',
+  'Pure Spirit',
+  'Dissolution',
+  'Powerful Ancestry',
+  'Unnerving Demeanor',
+]
+SDLCGRoller.FEY_LIST = ['Cambion', 'Elf', 'Hobgoblin', 'Pixie']
 
 async function charGen() {
   if (!game.modules.get('sdlc-1000')?.active) {

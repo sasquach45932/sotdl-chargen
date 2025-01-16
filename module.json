@@ -18,7 +18,19 @@
         "systems": [
             {
                 "id": "demonlord",
-                "type": "system"
+                "type": "system",
+                "compatibility": {
+                    "minimum": "4.6.0"
+                }
+            }
+        ],
+        "requires": [
+            {
+                "id": "sdlc-1000",
+                "type": "module",
+                "compatibility": {
+                    "verified": "1.17.1"
+                }
             }
         ]
     },
@@ -33,16 +45,6 @@
             "lang": "en",
             "name": "English",
             "path": "language/en.json"
-        }
-    ],
-    "requires": [
-        {
-            "id": "sdlc-1000",
-            "type": "module",
-            "manifest": "URL",
-            "compatibility": {
-                "verified": "1.0.0"
-            }
         }
     ],
     "url": "#{URL}#",

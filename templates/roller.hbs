@@ -19,6 +19,36 @@
     </div>
     </div>
 
+{{#if showBackgroundDropDown}}
+    <div style="margin-bottom:5px;"></div>
+    <div id="ancestry-selector" class=".sotdl-chargen background_drop_down">
+        <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollBackgroundFrom"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <select id="select_background" name="select_background" style="width:100%;" {{disabled feyAnchestry}}>
+                {{#each backgrounds}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+    </div>
+{{/if}}
+
+{{#if showMarkOfDarknessDropDown}}
+    <div style="margin-bottom:5px;"></div>
+    <div id="ancestry-selector" class=".sotdl-chargen background_drop_down">
+        <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollMarkOfDarknessFrom"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <select id="select_markofdarkness" name="select_markofdarkness" style="width:100%;" {{disabled devilAnchestry}}>
+                {{#each markofdarkness}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+    </div>
+{{/if}}
+
     <div style="margin-bottom:5px;"></div>
     <div id="gender-selector" class=".sotdl-chargen gender_drop_down">
         <div class="sotdl-chargen-label">{{localize "DL.CharGender"}}:</div>
