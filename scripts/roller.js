@@ -398,7 +398,9 @@ export class SDLCGRoller extends FormApplication {
 
         let incarnationAncestry = this.ancestries.find(x => x.name === 'Incarnation')
         let incarnationTalents = incarnationAncestry.system.levels[0].talents
-        incarnationTalents = incarnationTalents.filter(function (el) {return el.name !== 'Darksight'})
+        // incarnationTalents = incarnationTalents.filter(function (el) {return el.name !== 'Darksight'})
+        incarnationTalents = incarnationTalents.filter(a => !SDLCGRoller.INCARNATION_TALENT_LIST.map(b=>b).includes(a.name))
+
         let combinedTalents = ancestryOnActorClone.system.levels[0].talents.concat(incarnationTalents)
         await ancestryOnActorClone.updateSource({
           system: {
@@ -410,7 +412,6 @@ export class SDLCGRoller extends FormApplication {
               ]
           }
       })
-      let z = 2
       ancestryOnActorClone.system.levels[0].talents.push(incarnationTalents)
     }
 

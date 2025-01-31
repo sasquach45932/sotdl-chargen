@@ -9,11 +9,13 @@ SDLCGRoller.SUPPORTED_PACKS = [
 ]
 SDLCGRoller.INCARNATION_EXCLUSION_LIST = ['Changeling', 'Elf', 'Goblin', 'Hobgoblin', 'Pixie', 'Sylph']
 SDLCGRoller.INCARNATION_TALENT_LIST = [
-  'Darksight',
-  'Pure Spirit',
+  'Invisible',
+  'Hover',
   'Dissolution',
-  'Powerful Ancestry',
-  'Unnerving Demeanor',
+  'Ephemeral',
+  'Contact',
+  'Incarnate',
+  'Insubtantial'
 ]
 SDLCGRoller.FEY_LIST = ['Cambion', 'Elf', 'Hobgoblin', 'Pixie']
 
