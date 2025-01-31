@@ -11,6 +11,8 @@ Fully supported paid modules:
 
 - [Hunger in the Void Compendia](https://foundryvtt.com/packages/sdlc-1024)
 
+- [Exquisite Agony Compendia](https://foundryvtt.com/packages/sdlc-1015)
+
 Module fetches all the ancestries from the `sdlc-*` compendia. Those ancestries which name contains † sign are not fully supported, not all rolltable will be rolled and results will NOT be applied on actor.
 
 The module supports:
