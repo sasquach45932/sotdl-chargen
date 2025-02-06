@@ -309,6 +309,8 @@ export class SDLCGRoller extends FormApplication {
     let ancestryName = ancestry.name
     let incarnation = $("#select_ancestry option:selected").text().startsWith('Incarnation')
     let ancestryOnActorClone = await foundry.utils.deepClone(ancestry)
+    let startingCorruption
+    let startingInsanity
 
     //Cliked on Re-Roll
     if (reRollAttributes) {
@@ -377,6 +379,17 @@ export class SDLCGRoller extends FormApplication {
       levelAttribs[0].attributes.agility.formula = ''
       levelAttribs[0].attributes.intellect.formula = ''
       levelAttribs[0].attributes.will.formula = ''
+
+      // Characteristics from ancestry are rolled
+      if (levelAttribs[0].characteristics.insanity.formula) {
+        startingInsanity = Math.round(Math.random() * 2 + 1)
+        levelAttribs[0].characteristics.insanity.formula = ''
+      }
+      if (levelAttribs[0].characteristics.corruption.formula) {
+        startingCorruption = Math.round(Math.random() * 2 + 1)
+        levelAttribs[0].characteristics.corruption.formula = ''
+      }
+
       await ancestryOnActorClone.updateSource({'system.levels':  levelAttribs})
 
       if (incarnation) {
@@ -416,6 +429,10 @@ export class SDLCGRoller extends FormApplication {
     }
 
     await genActor.createEmbeddedDocuments('Item', [ancestryOnActorClone])
+
+    // Characteristics from ancestry
+    await genActor.update({ 'system.characteristics.insanity.value': startingInsanity })
+    await genActor.update({ 'system.characteristics.corruption.value': startingCorruption })
 
       let common = new shared.SDLCGShared()
       await common.getData()
