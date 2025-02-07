@@ -537,7 +537,8 @@ export class SDLCGRoller extends FormApplication {
       }
 
       await common.rollPersonalityTraits(genActor)
-      await common.rollIntrestingThing(genActor)
+      if (interestingThingsCompendia === 'sdlc-1014') await common.rollIntrestingThingTerribleBeauty(genActor)
+        else await common.rollIntrestingThing(genActor)
       await common.rollWealth(genActor)
       await common.rollProfession(genActor)
       if (incarnation) {

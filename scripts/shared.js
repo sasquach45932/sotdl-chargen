@@ -1161,6 +1161,41 @@ export class SDLCGShared {
     })
   }
 
+async rollIntrestingThingTerribleBeauty(actor) {
+    let inventoryItem = true
+    let result
+    let notInventoryItemIdList = []
+    let itemType = 'item'
+    let table = await this.allRolltables.find(r => r.name === 'Interesting THings from the Hidden Kingdoms')
+    let r = await table.draw({
+        displayChat: !this.settings.DisableRollChatMessages
+    })
+    let description = r.results[0].text
+    description = description.replace('[[/r 3d6]]', await utils.rollDice('6d6'))
+    description = description.replace('[[/r 2d20]]', await utils.rollDice('2d20'))
+
+    notInventoryItemIdList = [6, 20]
+    result = notInventoryItemIdList.find(x => x === r.roll._total)
+    if (result) inventoryItem = false
+    let item = await utils.addInventoryItem(actor, this.weapons, 'Sword')
+    await actor.updateEmbeddedDocuments('Item', [{
+        _id: item[0]._id,
+        name: description
+    }, ])
+
+    if (inventoryItem) {
+        let item = new Item({
+            name: description,
+            type: itemType,
+            img: 'icons/containers/bags/sack-cloth-tan.webp',
+        })
+        await actor.createEmbeddedDocuments('Item', [item])
+    }
+    await actor.update({
+        'system.description': actor.system.description + 'Your interesting thing: ' + description + '<br>',
+    })
+}
+
   async rollPersonalityTraits(actor) {
     let text = 'You are '
     let table = await this.allRolltables.find(r => r.name === 'Positive Personality Traits')
