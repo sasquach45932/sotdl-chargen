@@ -11,6 +11,8 @@ export class SDLCGRoller extends FormApplication {
     this.genderArray = []
     this.backgroundArray = []
     this.markOfDarknessArray = []
+    this.professionArray = []
+    this.interestingThingsArray = []    
     this.dispositionArray = []
     this.malusUsed = false
     this.folderName = 'CharGen Actors'
@@ -54,7 +56,6 @@ export class SDLCGRoller extends FormApplication {
   }
 
   async getData() {
-    ui.notifications.info(game.i18n.localize('SOTDLCG.FetchingAncestries'))
     const ancestriesComp = game.packs.filter(
       p => p.metadata.packageName.startsWith('sdlc-') && p.metadata.id.includes('ancestries'),
     )
@@ -138,6 +139,16 @@ export class SDLCGRoller extends FormApplication {
       name: game.modules.get('sdlc-1000').title,
     })
 
+    this.interestingThingsArray.push({
+      id: 'sdlc-1000',
+      name: game.modules.get('sdlc-1000').title,
+    })
+
+    this.professionArray.push({
+      id: 'sdlc-1000',
+      name: game.modules.get('sdlc-1000').title,
+    })
+
     this.markOfDarknessArray.push({
       id: 'sdlc-1000',
       name: game.modules.get('sdlc-1000').title,
@@ -154,9 +165,26 @@ export class SDLCGRoller extends FormApplication {
       })        
     }
 
+    if (game.modules.get('sdlc-1014')?.active) {
+      this.backgroundArray.push({
+          id: 'sdlc-1014',
+          name: game.modules.get('sdlc-1014').title,
+      })
+      this.interestingThingsArray.push({
+        id: 'sdlc-1014',
+        name: game.modules.get('sdlc-1014').title,
+      })
+      this.professionArray.push({
+        id: 'sdlc-1014',
+        name: game.modules.get('sdlc-1014').title,
+      })
+    }
+
     await utils.sortArrayByName(this.backgroundArray)
     await utils.sortArrayByName(this.markOfDarknessArray)
     await utils.sortArrayByName(ancestryArray)
+    await utils.sortArrayByName(this.interestingThingsArray)
+    await utils.sortArrayByName(this.professionArray)
 
     this.ancestries = ancestries
     let selectedAncestryName = this.ancestries.find(x => x.id === ancestryArray[0].id).name  
@@ -164,13 +192,18 @@ export class SDLCGRoller extends FormApplication {
       ancestries: ancestryArray,
       gender: this.genderArray,
       backgrounds: this.backgroundArray,
+      professions: this.professionArray,
       markofdarkness: this.markOfDarknessArray,
       disposition: this.dispositionArray,
-      showBackgroundDropDown: game.modules.get('sdlc-1015')?.active ? true : false,
+      interestingthigs: this.interestingThingsArray,
+      showBackgroundDropDown: game.modules.get('sdlc-1015')?.active || game.modules.get('sdlc-1014')?.active  ? true : false,
       showMarkOfDarknessDropDown: game.modules.get('sdlc-1015')?.active ? true : false,
+      showinterestingThingsDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
+      showprofessionDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
       feyAnchestry: SDLCGRoller.FEY_LIST.find(x => x === ancestryArray[0].name) ? true : false,
+      fearieAnchestry: SDLCGRoller.FAERIE_LIST.find(x => x === ancestryArray[0].name) ? false : true,
       devilAnchestry: ancestryArray[0].name === 'Cambion' ? false : true,
-      index: 0,
+      selectedBackground: game.modules.get('sdlc-1015')?.active ? 'sdlc-1015' : 'sdlc-1000'
     }
   }
 
@@ -185,26 +218,50 @@ export class SDLCGRoller extends FormApplication {
 
   async ancestryChange(event) {
     let ancestry = this.ancestries.find(x => x.id === $('#select_ancestry').val())
-    if (SDLCGRoller.FEY_LIST.find(x => x === ancestry.name)) 
-      {     
-         $("#select_background").prop( "disabled", true )
-         if (ancestry.name === 'Cambion' && game.modules.get('sdlc-1015')?.active) $("#select_background").val('sdlc-1015')
-          else $("#select_background").val('sdlc-1000')
-      }
-      else {$("#select_background").prop( "disabled", false )
-        $("#select_background").val('sdlc-1000')
-      }
+    // if (SDLCGRoller.FEY_LIST.find(x => x === ancestry.name))
+    //   {
+    //      $("#select_background").prop( "disabled", true )
+    //      if (ancestry.name === 'Cambion' && game.modules.get('sdlc-1015')?.active) $("#select_background").val('sdlc-1015')
+    //       else $("#select_background").val('sdlc-1000')
+    //   }
+    //   else {$("#select_background").prop( "disabled", false )
+    //     $("#select_background").val('sdlc-1000')
+    //   }
+
+    $("#select_interestingthigs").val('sdlc-1000')
 
     if (ancestry.name === 'Cambion' && game.modules.get('sdlc-1015')?.active)
     {
       $("#select_markofdarkness").val('sdlc-1015')
       $("#select_markofdarkness").prop( "disabled", false)
+      $("#select_profession").val('sdlc-1000')
+      $("#select_profession").prop( "disabled", true)
+      $("#select_background").val('sdlc-1015')
+      $("#select_background").prop( "disabled", true)
     }
     else
     {
       $("#select_markofdarkness").val('sdlc-1000')
       $("#select_markofdarkness").prop( "disabled", true)
+      $("#select_background").val('sdlc-1000')
+      $("#select_background").prop( "disabled", false)
     }
+
+    if ((SDLCGRoller.FAERIE_LIST.find(x => x === ancestry.name)) && game.modules.get('sdlc-1014')?.active)
+      {
+        $("#select_background").val('sdlc-1014')
+        $("#select_background").prop( "disabled", true)
+        $("#select_profession").val('sdlc-1014')
+        $("#select_profession").prop( "disabled", false)
+        $("#select_interestingthigs").val('sdlc-1014')
+      }
+      else if (ancestry.name !== 'Cambion')
+      {
+        $("#select_background").val('sdlc-1000')
+        $("#select_background").prop( "disabled", false)
+        $("#select_profession").val('sdlc-1000')
+        $("#select_profession").prop( "disabled", true)
+      }
 
     this.malusUsed = false
     $('#select_gender').val(0)
@@ -366,8 +423,16 @@ export class SDLCGRoller extends FormApplication {
         },
       })
 
-      let markOfDarknessCompendia = formData.select_markofdarkness
+      let markOfDarknessCompendia = formData.select_markofdarkness === undefined ? 'sdlc-1000' : formData.select_markofdarkness
+      let interestingThingsCompendia = formData.select_interestingthigs === undefined ? 'sdlc-1000' : formData.select_interestingthigs
+      let professionCompendia = formData.select_profession  === undefined ? 'sdlc-1000' :  formData.select_profession
       let backgroundCompendia = formData.select_background
+
+      if (formData.select_background === undefined) 
+      {
+        if (ancestryName === 'Cambion') backgroundCompendia = 'sdlc-1015'
+        if (SDLCGRoller.FAERIE_LIST.find(x => x === ancestryName)) backgroundCompendia = 'sdlc-1014'
+      }
 
       let levelAttribs = ancestryOnActorClone.system.levels
       levelAttribs[0].attributes.strength.value = Number($('.str').text())

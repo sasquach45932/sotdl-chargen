@@ -11,9 +11,7 @@
         <div class="sotdl-chargen-label">{{localize "DL.CharAncestry"}}:</div>
         <div class="sotdl-chargen-div-user-input">
             <select id="select_ancestry" name="select_ancestry" style="width:100%;">
-                {{#each ancestries}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
+                  {{selectOptions ancestries valueAttr="id" labelAttr="name"}}
             </select>
         </div>
     </div>
@@ -21,13 +19,37 @@
 
 {{#if showBackgroundDropDown}}
     <div style="margin-bottom:5px;"></div>
-    <div id="ancestry-selector" class=".sotdl-chargen background_drop_down">
+    <div id="background-selector" class=".sotdl-chargen background_drop_down">
         <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollBackgroundFrom"}}:</div>
         <div class="sotdl-chargen-div-user-input">
             <select id="select_background" name="select_background" style="width:100%;" {{disabled feyAnchestry}}>
-                {{#each backgrounds}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
+                  {{selectOptions backgrounds selected=selectedBackground valueAttr="id" labelAttr="name"}}
+            </select>
+        </div>
+    </div>
+    </div>
+{{/if}}
+
+{{#if showprofessionDropDown}}
+    <div style="margin-bottom:5px;"></div>
+    <div id="ancestry-selector" class=".sotdl-chargen profession_drop_down">
+        <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollProfessionFrom"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <select id="select_profession" name="select_profession" style="width:100%;" {{disabled fearieAnchestry}}>
+                {{selectOptions professions valueAttr="id" labelAttr="name"}}
+            </select>
+        </div>
+    </div>
+    </div>
+{{/if}}
+
+{{#if showinterestingThingsDropDown}}
+    <div style="margin-bottom:5px;"></div>
+    <div id="interestingthigs-selector" class=".sotdl-chargen interestingthigs_drop_down">
+        <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollInterestingThingsFrom"}}:</div>
+        <div class="sotdl-chargen-div-user-input">
+            <select id="select_interestingthigs" name="select_interestingthigs" style="width:100%;">
+                {{selectOptions interestingthigs valueAttr="id" labelAttr="name"}}
             </select>
         </div>
     </div>
@@ -36,13 +58,11 @@
 
 {{#if showMarkOfDarknessDropDown}}
     <div style="margin-bottom:5px;"></div>
-    <div id="ancestry-selector" class=".sotdl-chargen background_drop_down">
+    <div id="markofdarkness-selector" class=".sotdl-chargen background_drop_down">
         <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollMarkOfDarknessFrom"}}:</div>
         <div class="sotdl-chargen-div-user-input">
             <select id="select_markofdarkness" name="select_markofdarkness" style="width:100%;" {{disabled devilAnchestry}}>
-                {{#each markofdarkness}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
+                {{selectOptions markofdarkness valueAttr="id" labelAttr="name"}}
             </select>
         </div>
     </div>
@@ -54,9 +74,7 @@
         <div class="sotdl-chargen-label">{{localize "DL.CharGender"}}:</div>
         <div class="sotdl-chargen-div-user-input">
             <select id="select_gender" name="select_gender" style="width:100%;">
-                {{#each gender}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
+                {{selectOptions gender valueAttr="id" labelAttr="name"}}
             </select>
         </div>
     </div>
@@ -67,9 +85,7 @@
         <div class="sotdl-chargen-label">{{localize "Token Disposition"}}:</div>
         <div class="sotdl-chargen-div-user-input">
             <select id="select_disposition" name="select_disposition" style="width:100%;">
-                {{#each disposition}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
+                {{selectOptions disposition valueAttr="id" labelAttr="name"}}                
             </select>
         </div>
     </div>
