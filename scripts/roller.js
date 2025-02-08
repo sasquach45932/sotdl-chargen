@@ -81,7 +81,7 @@ export class SDLCGRoller extends FormApplication {
               agiRolled: ancestry.system.levels[0].attributes.agility.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.agility.formula) : ancestry.system.levels[0].attributes.agility.value,
               intRolled: ancestry.system.levels[0].attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.intellect.formula) : ancestry.system.levels[0].attributes.intellect.value,
               wilRolled: ancestry.system.levels[0].attributes.will.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.will.formula) : ancestry.system.levels[0].attributes.will.value,
-              bonus_points: ancestry.name === 'Human' ? 1 : 0,
+              bonus_points: await this.calculateBonusPoints(ancestry.name),
           })
 
           if (!SDLCGRoller.INCARNATION_EXCLUSION_LIST.find(x => x === ancestry.name) && game.modules.get('sdlc-1024')?.active) {
@@ -97,7 +97,7 @@ export class SDLCGRoller extends FormApplication {
                   agiRolled: ancestry.system.levels[0].attributes.agility.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.agility.formula) : ancestry.system.levels[0].attributes.agility.value,
                   intRolled: ancestry.system.levels[0].attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.intellect.formula) : ancestry.system.levels[0].attributes.intellect.value,
                   wilRolled: ancestry.system.levels[0].attributes.will.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.will.formula) : ancestry.system.levels[0].attributes.will.value,
-                  bonus_points: ancestry.name === 'Human' ? 1 : 0,
+                  bonus_points: await this.calculateBonusPoints(ancestry.name),
               })
           }
       }
@@ -287,10 +287,28 @@ export class SDLCGRoller extends FormApplication {
     this.int = ancestry.system.levels[0].attributes.intellect.value
     this.wil = ancestry.system.levels[0].attributes.will.value
     $('.bonus-used').text('0')
-    if (ancestry.name === 'Human') {
-      $('.bonus-max').text('1')
+    $('.bonus-max').text(await this.calculateBonusPoints(ancestry.name))
+
+    if (ancestry.name === 'Hobgoblin') {
+      let backColor1 = $('.str_minus').css('background-color')
+      let backColor2 = $('.str_minus').css('background-color')
+      $('.str_minus').css({ color: backColor1 })
+      $('.str_plus').css({ color: backColor1 })
+      $('.int_minus').css({ color: backColor1 })
+      $('.int_plus').css({ color: backColor1 })
+      $('.agi_minus').css({ color: backColor2 })
+      $('.agi_plus').css({ color: backColor2 })
+      $('.wil_minus').css({ color: backColor2 })
+      $('.wil_plus').css({ color: backColor2 })
     } else {
-      $('.bonus-max').text('0')
+      $('.str_minus').css({ color: 'black' })
+      $('.str_plus').css({ color: 'black' })
+      $('.int_minus').css({ color: 'black' })
+      $('.int_plus').css({ color: 'black' })
+      $('.agi_minus').css({ color: 'black' })
+      $('.agi_plus').css({ color: 'black' })
+      $('.wil_minus').css({ color: 'black' })
+      $('.wil_plus').css({ color: 'black' })
     }
   }
 
@@ -352,6 +370,22 @@ export class SDLCGRoller extends FormApplication {
     return result.terms[0].results
   }
 
+  async calculateBonusPoints(ancestryName) {
+    let bonusPoints
+    switch (ancestryName) {
+        case 'Human':
+            bonusPoints = 1
+            break;
+        case 'Elf':
+            bonusPoints = 2
+            break;
+        default:
+            bonusPoints = 0
+            break;
+    }
+    return bonusPoints
+}
+
   async attributeReRoll(formula) {
     let roll = formula.split("1d3").pop()
     return roll = Number(roll.split("+").pop()) + Math.round(Math.random() * 2 + 1)
@@ -403,11 +437,8 @@ export class SDLCGRoller extends FormApplication {
       $('.intMOD').text(utils.setSign('0'))
       $('.wilMOD').text(utils.setSign('0'))
       $('.bonus-used').text('0')
-      if (ancestry.name === 'Human') {
-        $('.bonus-max').text('1')
-      } else {
-        $('.bonus-max').text('0')
-      }
+      $('.bonus-used').text('0')
+      $('.bonus-max').text(await this.calculateBonusPoints(ancestry.name))
     } else {
       let genActor = await this.createGenActor(
         formData.character_name.length !== 0 ? utils.capitalize(formData.character_name) : ancestry.name,
