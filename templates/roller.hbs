@@ -22,7 +22,7 @@
     <div id="background-selector" class=".sotdl-chargen background_drop_down">
         <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollBackgroundFrom"}}:</div>
         <div class="sotdl-chargen-div-user-input">
-            <select id="select_background" name="select_background" style="width:100%;" {{disabled feyAnchestry}}>
+            <select id="select_background" name="select_background" style="width:100%;" {{disabled backgroundNoChange}}>
                   {{selectOptions backgrounds selected=selectedBackground valueAttr="id" labelAttr="name"}}
             </select>
         </div>
@@ -35,7 +35,7 @@
     <div id="ancestry-selector" class=".sotdl-chargen profession_drop_down">
         <div class="sotdl-chargen-label">{{localize "SOTDLCG.RollProfessionFrom"}}:</div>
         <div class="sotdl-chargen-div-user-input">
-            <select id="select_profession" name="select_profession" style="width:100%;" {{disabled fearieAnchestry}}>
+            <select id="select_profession" name="select_profession" style="width:100%;" {{disabled professionChange}}>
                 {{selectOptions professions valueAttr="id" labelAttr="name"}}
             </select>
         </div>

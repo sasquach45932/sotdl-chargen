@@ -200,10 +200,10 @@ export class SDLCGRoller extends FormApplication {
       showMarkOfDarknessDropDown: game.modules.get('sdlc-1015')?.active ? true : false,
       showinterestingThingsDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
       showprofessionDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
-      feyAnchestry: SDLCGRoller.FEY_LIST.find(x => x === ancestryArray[0].name) ? true : false,
-      fearieAnchestry: SDLCGRoller.FAERIE_LIST.find(x => x === ancestryArray[0].name) ? false : true,
+      professionChange : SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryArray[0].name) ? true : false,
+      backgroundNoChange: SDLCGRoller.BACKROUND_NOCHANGE_LIST.find(x => x === ancestryArray[0].name) ? true : false,
       devilAnchestry: ancestryArray[0].name === 'Cambion' ? false : true,
-      selectedBackground: game.modules.get('sdlc-1015')?.active ? 'sdlc-1015' : 'sdlc-1000'
+      selectedBackground: game.modules.get('sdlc-1015')?.active && ancestryArray[0].name === 'Cambion' ? 'sdlc-1015' : 'sdlc-1000'
     }
   }
 
@@ -218,50 +218,55 @@ export class SDLCGRoller extends FormApplication {
 
   async ancestryChange(event) {
     let ancestry = this.ancestries.find(x => x.id === $('#select_ancestry').val())
-    // if (SDLCGRoller.FEY_LIST.find(x => x === ancestry.name))
-    //   {
-    //      $("#select_background").prop( "disabled", true )
-    //      if (ancestry.name === 'Cambion' && game.modules.get('sdlc-1015')?.active) $("#select_background").val('sdlc-1015')
-    //       else $("#select_background").val('sdlc-1000')
-    //   }
-    //   else {$("#select_background").prop( "disabled", false )
-    //     $("#select_background").val('sdlc-1000')
-    //   }
-
     $("#select_interestingthigs").val('sdlc-1000')
+    if (SDLCGRoller.BACKROUND_NOCHANGE_LIST.find(x => x === ancestry.name))
+    {
+      $("#select_background").prop( "disabled", true)
+      switch (ancestry.name) {
+        case 'Cambion':
+              $("#select_background").val('sdlc-1015')
+              break;
+        case 'Changeling':
+              $("#select_background").val('sdlc-1000')
+              break;
+        case 'Faun':
+              $("#select_background").val('sdlc-1000')
+              break;
+        case 'Goblin':
+              $("#select_background").val('sdlc-1000')
+              break;
+        default:
+              $("#select_background").val('sdlc-1014')
+              break;
+      }
+    }
+    else
+    {
+      $("#select_background").prop( "disabled", false)
+      $("#select_background").val('sdlc-1000')
+    }
 
-    if (ancestry.name === 'Cambion' && game.modules.get('sdlc-1015')?.active)
+    if (ancestry.name === 'Cambion')
     {
       $("#select_markofdarkness").val('sdlc-1015')
       $("#select_markofdarkness").prop( "disabled", false)
-      $("#select_profession").val('sdlc-1000')
-      $("#select_profession").prop( "disabled", true)
-      $("#select_background").val('sdlc-1015')
-      $("#select_background").prop( "disabled", true)
     }
     else
     {
       $("#select_markofdarkness").val('sdlc-1000')
       $("#select_markofdarkness").prop( "disabled", true)
-      $("#select_background").val('sdlc-1000')
-      $("#select_background").prop( "disabled", false)
     }
 
-    if ((SDLCGRoller.FAERIE_LIST.find(x => x === ancestry.name)) && game.modules.get('sdlc-1014')?.active)
-      {
-        $("#select_background").val('sdlc-1014')
-        $("#select_background").prop( "disabled", true)
-        $("#select_profession").val('sdlc-1014')
-        $("#select_profession").prop( "disabled", false)
-        $("#select_interestingthigs").val('sdlc-1014')
-      }
-      else if (ancestry.name !== 'Cambion')
-      {
-        $("#select_background").val('sdlc-1000')
-        $("#select_background").prop( "disabled", false)
-        $("#select_profession").val('sdlc-1000')
-        $("#select_profession").prop( "disabled", true)
-      }
+    if (SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestry.name))
+    {
+      $("#select_profession").val('sdlc-1014')
+      $("#select_profession").prop( "disabled", false)
+    }
+    else
+    {
+      $("#select_profession").val('sdlc-1000')
+      $("#select_profession").prop( "disabled", true)
+    }
 
     this.malusUsed = false
     $('#select_gender').val(0)
@@ -456,13 +461,28 @@ export class SDLCGRoller extends FormApplication {
 
       let markOfDarknessCompendia = formData.select_markofdarkness === undefined ? 'sdlc-1000' : formData.select_markofdarkness
       let interestingThingsCompendia = formData.select_interestingthigs === undefined ? 'sdlc-1000' : formData.select_interestingthigs
-      let professionCompendia = formData.select_profession  === undefined ? 'sdlc-1000' :  formData.select_profession
+      let professionCompendia = formData.select_profession === undefined ? 'sdlc-1000' :  formData.select_profession
       let backgroundCompendia = formData.select_background
 
-      if (formData.select_background === undefined) 
+      if (formData.select_background === undefined)
       {
-        if (ancestryName === 'Cambion') backgroundCompendia = 'sdlc-1015'
-        if (SDLCGRoller.FAERIE_LIST.find(x => x === ancestryName)) backgroundCompendia = 'sdlc-1014'
+        switch (ancestry.name) {
+          case 'Cambion':
+                backgroundCompendia = 'sdlc-1015'
+                break;
+          case 'Changeling':
+                backgroundCompendia = 'sdlc-1000'
+                break;
+          case 'Faun':
+                backgroundCompendia = 'sdlc-1001'
+                break;
+          case 'Goblin':
+                backgroundCompendia = 'sdlc-1000'
+                break;
+          default:
+                backgroundCompendia = 'sdlc-1014'
+                break;
+        }
       }
 
       let levelAttribs = ancestryOnActorClone.system.levels
@@ -570,7 +590,7 @@ export class SDLCGRoller extends FormApplication {
       await common.rollPersonalityTraits(genActor)
       if (interestingThingsCompendia === 'sdlc-1014') await common.rollIntrestingThingTerribleBeauty(genActor)
         else await common.rollIntrestingThing(genActor)
-      await common.rollWealth(genActor)
+      await common.rollWealth(genActor, backgroundCompendia)
       await common.rollProfession(genActor)
       if (incarnation) {
         await genActor.update({

@@ -1215,7 +1215,76 @@ async rollIntrestingThingTerribleBeauty(actor) {
     await actor.update({ 'system.religion.value': r.results[0].text })
   }
 
-  async rollWealth(actor) {
+  async rollTBWealth(actor) {
+    let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
+
+    await actor.updateEmbeddedDocuments('Item', [{
+        _id: itemArr[0]._id,
+        name: 'Clothing, Fine',
+        img: 'icons/equipment/chest/shirt-collared-brown.webp',
+    }, ])
+
+    itemArr = await utils.addInventoryItem(actor, this.items, 'Cloak')
+    await actor.updateEmbeddedDocuments('Item', [{
+        _id: itemArr[0]._id,
+        name: 'Cloak, Fine',
+    }, ])
+
+    await utils.addInventoryItem(actor, this.items, 'Quiver or case for bolts')
+
+    itemArr = await utils.addInventoryItem(actor, this.weapons, 'Dagger')
+    await actor.updateEmbeddedDocuments('Item', [{
+        _id: itemArr[0]._id,
+        name: 'Dagger, Bronze',
+    }, ])
+
+
+    itemArr = await utils.addInventoryItem(actor, this.ammunitions, 'Arrows')
+    await actor.updateEmbeddedDocuments('Item', [{
+        _id: itemArr[0]._id,
+        'system.quantity': 12,
+    }, ])
+
+    let ammoItemId = itemArr[0]._id
+
+    itemArr = await utils.addInventoryItem(actor, this.weapons, 'Bow')
+    await actor.updateEmbeddedDocuments('Item', [{
+      _id: itemArr[0]._id,
+      'system.consume.ammorequired': true,
+      'system.consume.ammoitemid' : ammoItemId,
+  }, ])
+
+
+    itemArr = await utils.addInventoryItem(actor, this.items, 'Rations (1 week)')
+    let qty = await utils.rollDice('1d6')
+    await actor.updateEmbeddedDocuments('Item', [{
+        _id: itemArr[0]._id,
+        name: 'Small cakes (for a day)',
+        'system.quantity': qty,
+        img: 'icons/consumables/grains/waffle-golden-yellow.webp',
+    }, ])
+
+    qty = await utils.rollDice('1d3')
+    itemArr = await utils.addInventoryItem(actor, this.items, 'Waterskin')
+    await actor.updateEmbeddedDocuments('Item', [{
+        _id: itemArr[0]._id,
+        name: 'Bottle of wine',
+        'system.quantity': qty,
+        'system.consumabletype' : "F",
+        'system.autoDestroy' : true,
+        img: 'icons/consumables/potions/bottle-bulb-corked-glowing-red.webp',
+    }, ])
+
+    await utils.addInventoryItem(actor, this.items, 'Healing Potion')
+    await utils.addInventoryItem(actor, this.items, 'Pouch')
+
+    let cp = await utils.rollDice('3d6')
+    await actor.update({
+        'system.wealth.cp': actor.system.wealth.cp + cp,
+    })    
+  }  
+
+  async rollWealth(actor, backgroundCompendia) {
     let iItem
     let iWeapon
     let label1
@@ -1338,6 +1407,11 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
     //Comfortable
     if (r.roll._total >= 14 && r.roll._total <= 16) {
+      if (backgroundCompendia === 'sdlc-1014')
+        {
+          await this.rollTBWealth(actor)
+          return
+        }
       label1 = 'Staff'
       label2 = 'Club'
       label3 = 'Sling with 20 stones'
@@ -1406,6 +1480,11 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
     //Wealthy
     if (r.roll._total === 17) {
+      if (backgroundCompendia === 'sdlc-1014')
+        {
+          await this.rollTBWealth(actor)
+          return
+        }      
       await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
       await utils.addInventoryItem(actor, this.items, 'Backpack')
@@ -1462,6 +1541,11 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
     // Rich
     if (r.roll._total === 18) {
+      if (backgroundCompendia === 'sdlc-1014')
+        {
+          await this.rollTBWealth(actor)
+          return
+        }
       await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
       await utils.addInventoryItem(actor, this.items, 'Cloak')
