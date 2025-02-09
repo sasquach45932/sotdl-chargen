@@ -200,7 +200,7 @@ export class SDLCGRoller extends FormApplication {
       showMarkOfDarknessDropDown: game.modules.get('sdlc-1015')?.active ? true : false,
       showinterestingThingsDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
       showprofessionDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
-      professionChange : SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryArray[0].name) ? true : false,
+      professionChange : SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryArray[0].name) ? false : true,
       backgroundNoChange: SDLCGRoller.BACKROUND_NOCHANGE_LIST.find(x => x === ancestryArray[0].name) ? true : false,
       devilAnchestry: ancestryArray[0].name === 'Cambion' ? false : true,
       selectedBackground: game.modules.get('sdlc-1015')?.active && ancestryArray[0].name === 'Cambion' ? 'sdlc-1015' : 'sdlc-1000'
@@ -561,7 +561,7 @@ export class SDLCGRoller extends FormApplication {
       if (interestingThingsCompendia === 'sdlc-1014') await common.rollIntrestingThingTerribleBeauty(genActor)
         else await common.rollIntrestingThing(genActor)
       await common.rollWealth(genActor, backgroundCompendia)
-      await common.rollProfession(genActor)
+      await common.rollProfession(genActor, professionCompendia)
       if (incarnation) {
         await genActor.update({
           'system.description': genActor.system.description + `<br><strong>INCARNATION SECTION START.</strong><br>`,

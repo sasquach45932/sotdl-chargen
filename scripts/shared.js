@@ -89,6 +89,11 @@ export class SDLCGShared {
         'system.description': actor.system.description + `Your mark of darkness: ${description}` + '<br>',
     })
 }
+
+async removeTrailingFullStop(string) {
+  return string.slice(-1) === '.' ? string.substr(0, string.length-1) : string
+}
+
   async rollNotYetImplemented(genActor, ancestryName) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, 0)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
@@ -1171,7 +1176,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
         displayChat: !this.settings.DisableRollChatMessages
     })
     let description = r.results[0].text
-    description = description.replace('[[/r 3d6]]', await utils.rollDice('6d6'))
+    description = description.replace('[[/r 6d6]]', await utils.rollDice('6d6'))
     description = description.replace('[[/r 2d20]]', await utils.rollDice('2d20'))
 
     notInventoryItemIdList = [6, 20]
@@ -1708,7 +1713,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
 
   }
 
-  async rollProfession(actor) {
+  async rollProfession(actor, professionCompendia) {
     let label1 = 'New language'
     let label2 = 'Learn to read'
     let label3 = 'New Profession'
@@ -1759,10 +1764,23 @@ async rollIntrestingThingTerribleBeauty(actor) {
           }
           break
         case label3:
-          await this.rollRealProfession(actor)
+          if (professionCompendia === 'sdlc-1000') await this.rollRealProfession(actor)
+          else {
+            let table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Faerie Professions'.toLowerCase())
+            let r = await table.draw({
+              displayChat: !this.settings.DisableRollChatMessages,
+            })
+            let description = r.results[0].text
+            this.currentProfession = { professionCategory: 'Faerie Profession', professionName: await this.removeTrailingFullStop(r.results[0].text) }
+          }
           await actor.update({
-            'system.description': actor.system.description + this.currentProfession.professionCategory + ': ' + this.currentProfession.professionName + '.<br>',
-          })          
+            'system.description':
+              actor.system.description +
+              this.currentProfession.professionCategory +
+              ': ' +
+              this.currentProfession.professionName +
+              '.<br>',
+          })
           break
       }
     }
