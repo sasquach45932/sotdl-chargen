@@ -219,31 +219,16 @@ export class SDLCGRoller extends FormApplication {
   async ancestryChange(event) {
     let ancestry = this.ancestries.find(x => x.id === $('#select_ancestry').val())
     $("#select_interestingthigs").val('sdlc-1000')
+    let pack = ancestry.pack.substr(0, 9)
+    if (pack === 'sdlc-1001' || pack === 'sdlc-1002') pack = 'sdlc-1000'    
+    $("#select_background").val(pack)
     if (SDLCGRoller.BACKROUND_NOCHANGE_LIST.find(x => x === ancestry.name))
     {
       $("#select_background").prop( "disabled", true)
-      switch (ancestry.name) {
-        case 'Cambion':
-              $("#select_background").val('sdlc-1015')
-              break;
-        case 'Changeling':
-              $("#select_background").val('sdlc-1000')
-              break;
-        case 'Faun':
-              $("#select_background").val('sdlc-1000')
-              break;
-        case 'Goblin':
-              $("#select_background").val('sdlc-1000')
-              break;
-        default:
-              $("#select_background").val('sdlc-1014')
-              break;
-      }
     }
     else
     {
       $("#select_background").prop( "disabled", false)
-      $("#select_background").val('sdlc-1000')
     }
 
     if (ancestry.name === 'Cambion')
@@ -466,23 +451,8 @@ export class SDLCGRoller extends FormApplication {
 
       if (formData.select_background === undefined)
       {
-        switch (ancestry.name) {
-          case 'Cambion':
-                backgroundCompendia = 'sdlc-1015'
-                break;
-          case 'Changeling':
-                backgroundCompendia = 'sdlc-1000'
-                break;
-          case 'Faun':
-                backgroundCompendia = 'sdlc-1001'
-                break;
-          case 'Goblin':
-                backgroundCompendia = 'sdlc-1000'
-                break;
-          default:
-                backgroundCompendia = 'sdlc-1014'
-                break;
-        }
+        backgroundCompendia = ancestry.pack.substr(0, 9)
+        if (backgroundCompendia === 'sdlc-1001' || backgroundCompendia === 'sdlc-1002' ) backgroundCompendia === 'sdlc-1000'
       }
 
       let levelAttribs = ancestryOnActorClone.system.levels
