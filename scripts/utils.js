@@ -26,6 +26,19 @@ export async function addInventoryItem(actor, compType, itemName, quantity = 1) 
   return result
 }
 
+export async function addInventorySlingsAndStones(actor, ammunitions, weapons) {
+  let itemArr = await addInventoryItem(actor, ammunitions, 'Stones', 20)
+  let ammoItemId = itemArr[0]._id
+  itemArr = await addInventoryItem(actor, weapons, 'Sling')
+  await actor.updateEmbeddedDocuments('Item', [
+    {
+      _id: itemArr[0]._id,
+      'system.consume.ammorequired': true,
+      'system.consume.ammoitemid': ammoItemId,
+    },
+  ])
+}
+
 export async function addtionalLangToSpeak(actor) {
   let languageComp = await game.packs.get('demonlord.languages')
   await languageComp.getIndex()
@@ -91,17 +104,7 @@ export async function chooseClubOrSling(actor) {
       b: {
         label: 'Sling with 20 stones',
         callback: async html => {
-          let sling = weapons.find(l => l.name === 'Sling')
-          await actor.createEmbeddedDocuments('Item', [sling])
-          let stones = ammunitions.find(l => l.name === 'Stones')
-          await actor.createEmbeddedDocuments('Item', [stones])
-          stones = actor.items.find(l => l.name === 'Stones')
-          await actor.updateEmbeddedDocuments('Item', [
-            {
-              _id: stones._id,
-              'system.quantity': 20,
-            },
-          ])
+          await addInventorySlingsAndStones(actor, ammunitionsComp, weaponsComp)
         },
       },
     },
@@ -286,6 +289,11 @@ export async function rollDice(formula) {
   let r = new Roll(formula)
   await r.evaluate()
   return r._total
+}
+
+export async function rollNoDice(formula) {
+  let roll = formula.split("1d").pop()
+  return Math.round(Math.random() * (roll-1) + 1)
 }
 
 export function setSign(x) {

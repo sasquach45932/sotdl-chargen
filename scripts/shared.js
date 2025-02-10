@@ -1,5 +1,6 @@
 import { RegisteredSettings } from './registered-settings.js'
 import * as utils from './utils.js'
+import { SDLCGRoller } from './roller.js'
 
 export class SDLCGShared {
   settings = new RegisteredSettings()
@@ -98,7 +99,7 @@ async removeTrailingFullStop(string) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, 0)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
-    await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName)) await this.rollintoDesc(genActor, `${ancestryName} Background`)
     await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     await this.rollintoDesc(genActor, `${ancestryName} True Form`)
     await this.rollintoDesc(genActor, `${ancestryName} Humanoid Build`)
@@ -261,6 +262,18 @@ async removeTrailingFullStop(string) {
     }
   }
 
+  async rollHobgoblin(genActor, ancestryName, compendia, changeling = 0) {
+    await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
+    await genActor.update({
+      'system.appearance.height': '5 ft, 4-1/2 inches',
+      'system.appearance.weight': '166 lbs',
+    })
+    if (!changeling) {
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)      
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    }
+  }
+
   async rollintoDesc(actor, desc, changeling = 0) {
     let table = await this.allRolltables.find(r => r.name === desc)
     if (table === undefined) return
@@ -273,19 +286,19 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 4 && r.roll._total <= 7) {
         //      age = "12-17";
-        age = 11 + (await utils.rollDice('1d5'))
+        age = 11 + (await utils.rollNoDice('1d5'))
       }
       if (r.roll._total >= 8 && r.roll._total <= 12) {
         //      age = "18-35";
-        age = 17 + (await utils.rollDice('1d17'))
+        age = 17 + (await utils.rollNoDice('1d17'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "36-55";
-        age = 35 + (await utils.rollDice('1d19'))
+        age = 35 + (await utils.rollNoDice('1d19'))
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "56-75";
-        age = 55 + (await utils.rollDice('1d19'))
+        age = 55 + (await utils.rollNoDice('1d19'))
       }
       if (r.roll._total === 18) {
         age = '76+'
@@ -300,15 +313,15 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 9 && r.roll._total <= 12) {
         //      age = "6-10";
-        age = 5 + (await utils.rollDice('1d5'))
+        age = 5 + (await utils.rollNoDice('1d5'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "11-50";
-        age = 10 + (await utils.rollDice('1d40'))
+        age = 10 + (await utils.rollNoDice('1d40'))
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "51-150";
-        age = 50 + (await utils.rollDice('1d100'))
+        age = 50 + (await utils.rollNoDice('1d100'))
       }
       if (r.roll._total === 18) {
         age = '150+'
@@ -323,19 +336,19 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 4 && r.roll._total <= 7) {
         //      age = "20-30";
-        age = 19 + (await utils.rollDice('1d11'))
+        age = 19 + (await utils.rollNoDice('1d11'))
       }
       if (r.roll._total >= 8 && r.roll._total <= 12) {
         //      age = "31-50";
-        age = 30 + (await utils.rollDice('1d20'))
+        age = 30 + (await utils.rollNoDice('1d20'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "51-100";
-        age = 50 + (await utils.rollDice('1d50'))
+        age = 50 + (await utils.rollNoDice('1d50'))
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "101-150";
-        age = 100 + (await utils.rollDice('1d50'))
+        age = 100 + (await utils.rollNoDice('1d50'))
       }
       if (r.roll._total === 18) {
         age = '151+'
@@ -354,19 +367,19 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 4 && r.roll._total <= 7) {
         //      age = "7-10";
-        age = 6 + (await utils.rollDice('1d4'))
+        age = 6 + (await utils.rollNoDice('1d4'))
       }
       if (r.roll._total >= 8 && r.roll._total <= 12) {
         //      age = "11-25";
-        age = 10 + (await utils.rollDice('1d15'))
+        age = 10 + (await utils.rollNoDice('1d15'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "26-50";
-        age = 25 + (await utils.rollDice('1d25'))
+        age = 25 + (await utils.rollNoDice('1d25'))
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "51-75";
-        age = 50 + (await utils.rollDice('1d25'))
+        age = 50 + (await utils.rollNoDice('1d25'))
       }
       if (r.roll._total === 18) {
         age = '76+'
@@ -381,19 +394,19 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 4 && r.roll._total <= 7) {
         //      age = "8-12";
-        age = 7 + (await utils.rollDice('1d5'))
+        age = 7 + (await utils.rollNoDice('1d5'))
       }
       if (r.roll._total >= 8 && r.roll._total <= 12) {
         //      age = "13-18";
-        age = 12 + (await utils.rollDice('1d6'))
+        age = 12 + (await utils.rollNoDice('1d6'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "19-26";
-        age = 18 + (await utils.rollDice('1d8'))
+        age = 18 + (await utils.rollNoDice('1d8'))
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "27-32";
-        age = 26 + (await utils.rollDice('1d6'))
+        age = 26 + (await utils.rollNoDice('1d6'))
       }
       if (r.roll._total === 18) {
         age = '33+'
@@ -408,19 +421,19 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 4 && r.roll._total <= 7) {
         //      age = "9-14";
-        age = 8 + (await utils.rollDice('1d6'))
+        age = 8 + (await utils.rollNoDice('1d6'))
       }
       if (r.roll._total >= 8 && r.roll._total <= 12) {
         //      age = "15-25";
-        age = 14 + (await utils.rollDice('1d11'))
+        age = 14 + (await utils.rollNoDice('1d11'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "26-40";
-        age = 25 + (await utils.rollDice('1d15'))
+        age = 25 + (await utils.rollNoDice('1d15'))
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "41-60";
-        age = 40 + (await utils.rollDice('1d20'))
+        age = 40 + (await utils.rollNoDice('1d20'))
       }
       if (r.roll._total === 18) {
         age = '61+'
@@ -435,19 +448,19 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 4 && r.roll._total <= 7) {
         //      age = "12-17";
-        age = 11 + (await utils.rollDice('1d6'))
+        age = 11 + (await utils.rollNoDice('1d6'))
       }
       if (r.roll._total >= 8 && r.roll._total <= 12) {
         //      age = "18-35";
-        age = 17 + (await utils.rollDice('1d18'))
+        age = 17 + (await utils.rollNoDice('1d18'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "36-55";
-        age = 35 + (await utils.rollDice('1d120'))
+        age = 35 + (await utils.rollNoDice('1d120'))
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "56-75";
-        age = 55 + (await utils.rollDice('1d20'))
+        age = 55 + (await utils.rollNoDice('1d20'))
       }
       if (r.roll._total === 18) {
         age = '76+'
@@ -462,25 +475,57 @@ async removeTrailingFullStop(string) {
       }
       if (r.roll._total >= 4 && r.roll._total <= 6) {
         //      age = "12-17";
-        age = 11 + (await utils.rollDice('1d6'))
+        age = 11 + (await utils.rollNoDice('1d6'))
       }
       if (r.roll._total >= 7 && r.roll._total <= 12) {
         //      age = "18-35";
-        age = 17 + (await utils.rollDice('1d18'))
+        age = 17 + (await utils.rollNoDice('1d18'))
       }
       if (r.roll._total >= 13 && r.roll._total <= 15) {
         //      age = "36-55";
-        age = 35 + (await utils.rollDice('1d120'))
+        age = 35 + (await utils.rollNoDice('1d120'))
         await actor.update({ 'system.characteristics.corruption.value': 1 })
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "56-75";
-        age = 55 + (await utils.rollDice('1d20'))
+        age = 55 + (await utils.rollNoDice('1d20'))
         await actor.update({ 'system.characteristics.corruption.value': 2 })
       }
       if (r.roll._total === 18) {
         age = '76+'
         await actor.update({ 'system.characteristics.corruption.value': 3 })
+      }
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
+    }
+
+    if (desc === 'Hobgoblin Age') {
+      let age
+      if (r.roll._total === 3) {
+        age = '3'
+      }
+      if (r.roll._total >= 4 && r.roll._total <= 5) {
+        //      age = "4-8";
+        age = 3 + (await utils.rollNoDice('1d5'))
+      }
+      if (r.roll._total >= 6 && r.roll._total <= 8) {
+        //      age = "9-12";
+        age = 8 + (await utils.rollNoDice('1d4'))
+      }
+      if (r.roll._total >= 9 && r.roll._total <= 12) {
+        //      age = "13-20";
+        age = 12 + (await utils.rollNoDice('1d8'))
+      }
+      if (r.roll._total >= 13 && r.roll._total <= 15) {
+        //      age = "21-24";
+        age = 20 + (await utils.rollNoDice('1d4'))
+      }
+      if (r.roll._total >= 16 && r.roll._total <= 17) {
+        //      age = "25-29";
+        age = 24 + (await utils.rollNoDice('1d5'))
+      }      
+      if (r.roll._total === 18) {
+        //      age = "30-33";
+        age = 29 + (await utils.rollNoDice('1d4'))
       }
       if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
@@ -507,13 +552,13 @@ async removeTrailingFullStop(string) {
       if (r.roll._total === 3) {
         await actor.update({
           'system.appearance.height': '2 ft',
-          'system.appearance.weight': '40 lb',
+          'system.appearance.weight': '40 lbs',
         })
       }
       if (r.roll._total === 18) {
         await actor.update({
           'system.appearance.height': '5 ft',
-          'system.appearance.weight': '198 lb',
+          'system.appearance.weight': '198 lbs',
           'system.characteristics.size': '1',          
         })
       }
@@ -747,28 +792,28 @@ async removeTrailingFullStop(string) {
         await actorEffect.update({ changes: actorEffect.changes })
         await actor.update({
           'system.appearance.height': '3 ft',
-          'system.appearance.weight': '50 lb',
+          'system.appearance.weight': '50 lbs',
           'system.characteristics.size': '1/2',          
         })
       }
       if (r.roll._total >= 4 && r.roll._total <= 5) {
         await actor.update({
           'system.appearance.height': '3 ft',
-          'system.appearance.weight': '50 lb',
+          'system.appearance.weight': '50 lbs',
           'system.characteristics.size': '1/2',          
         })
       }
       if (r.roll._total >= 6 && r.roll._total <= 9) {
         await actor.update({
           'system.appearance.height': '4 ft',
-          'system.appearance.weight': '75 lb',
+          'system.appearance.weight': '75 lbs',
           'system.characteristics.size': '1/2',
         })
       }
       if (r.roll._total >= 10 && r.roll._total <= 15) {
         await actor.update({
           'system.appearance.height': '6 ft',
-          'system.appearance.weight': '300 lb',
+          'system.appearance.weight': '300 lbs',
         })
       }
       if (r.roll._total >= 16 && r.roll._total <= 17) {
@@ -784,7 +829,7 @@ async removeTrailingFullStop(string) {
 
         await actor.update({
           'system.appearance.height': '10 ft',
-          'system.appearance.weight': '750 lb',
+          'system.appearance.weight': '750 lbs',
           'system.characteristics.size': '2',          
         })
         description = description + ` (Speed and Defense reduced!)`
@@ -801,7 +846,7 @@ async removeTrailingFullStop(string) {
 
         await actor.update({
           'system.appearance.height': '10 ft',
-          'system.appearance.weight': '750 lb',
+          'system.appearance.weight': '750 lbs',
           'system.characteristics.size': '2',               
         })
         description = description + ` (Speed increased, Defense reduced!)`
@@ -1077,6 +1122,23 @@ async removeTrailingFullStop(string) {
       }
     }
 
+    if (desc === 'Hobgoblin Background') {
+      switch (r.roll._total) {
+        case 4:
+          description = description.replace('[[/r 1d3]]', await utils.rollDice('1d3'))
+          break
+        case 16:
+          await utils.addInventoryItem(actor, this.weapons, 'Sword')
+		  break		  
+        case 18:
+          description = description.replace('[[/r 1d3]]', await utils.rollDice('1d3'))
+          break
+        case 19:
+          description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
+          break			  
+      }
+    }    
+
     if (desc === 'Diabolical Backgrounds') {
       let corruption 
       switch (r.roll._total) {
@@ -1171,7 +1233,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
     let result
     let notInventoryItemIdList = []
     let itemType = 'item'
-    let table = await this.allRolltables.find(r => r.name === 'Interesting THings from the Hidden Kingdoms')
+    let table = await this.allRolltables.find(r => r.name.toUpperCase() === 'INTERESTING THINGS FROM THE HIDDEN KINGDOMS')
     let r = await table.draw({
         displayChat: !this.settings.DisableRollChatMessages
     })
@@ -1290,8 +1352,6 @@ async rollIntrestingThingTerribleBeauty(actor) {
   }  
 
   async rollWealth(actor, backgroundCompendia) {
-    let iItem
-    let iWeapon
     let label1
     let label2
     let label3
@@ -1347,8 +1407,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
       option = await utils.chooseFromThree('Choose a weapon!', label1, label2, label3)
 
       if (option === label3) {
-        await utils.addInventoryItem(actor, this.weapons, 'Sling')
-        await utils.addInventoryItem(actor, this.ammunitions, 'Stones', 20)
+        await utils.addInventorySlingsAndStones(actor, this.ammunitions, this.weapons)
       } else {
         await utils.addInventoryItem(actor, this.weapons, option)
       }
@@ -1382,8 +1441,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
       option = await utils.chooseFromThree('Choose a weapon!', label1, label2, label3)
 
       if (option === label3) {
-        await utils.addInventoryItem(actor, this.weapons, 'Sling')
-        await utils.addInventoryItem(actor, this.ammunitions, 'Stones', 20)
+        await utils.addInventorySlingsAndStones(actor, this.ammunitions, this.weapons)
       } else {
         await utils.addInventoryItem(actor, this.weapons, option)
       }
@@ -1424,8 +1482,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
       option = await utils.chooseFromThree('Choose a weapon!', label1, label2, label3)
 
       if (option === label3) {
-        await utils.addInventoryItem(actor, this.weapons, 'Sling')
-        await utils.addInventoryItem(actor, this.ammunitions, 'Stones', 20)
+        await utils.addInventorySlingsAndStones(actor, this.ammunitions, this.weapons)
       } else {
         await utils.addInventoryItem(actor, this.weapons, option)
       }

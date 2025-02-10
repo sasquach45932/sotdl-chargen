@@ -388,6 +388,7 @@ export class SDLCGRoller extends FormApplication {
 
     let ancestry = this.ancestries.find(x => x.id === formData.select_ancestry)
     let ancestryName = ancestry.name
+    let pack = ancestry.pack.substr(0, 9)
     let incarnation = $("#select_ancestry option:selected").text().startsWith('Incarnation')
     let ancestryOnActorClone = await foundry.utils.deepClone(ancestry)
     let startingCorruption
@@ -451,7 +452,7 @@ export class SDLCGRoller extends FormApplication {
 
       if (formData.select_background === undefined)
       {
-        backgroundCompendia = ancestry.pack.substr(0, 9)
+        backgroundCompendia =  pack
         if (backgroundCompendia === 'sdlc-1001' || backgroundCompendia === 'sdlc-1002' ) backgroundCompendia === 'sdlc-1000'
       }
 
@@ -552,16 +553,22 @@ export class SDLCGRoller extends FormApplication {
           break
         case 'Cambion':
           await common.rollCambion(genActor, ancestryName, markOfDarknessCompendia)
-          break          
+          break
+        case 'Hobgoblin':
+          await common.rollHobgoblin(genActor, ancestryName)
+          break    
         default:
           await common.rollNotYetImplemented(genActor, ancestryName)
       }
 
-      await common.rollPersonalityTraits(genActor)
+      if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName)) await common.rollPersonalityTraits(genActor)
       if (interestingThingsCompendia === 'sdlc-1014') await common.rollIntrestingThingTerribleBeauty(genActor)
         else await common.rollIntrestingThing(genActor)
       await common.rollWealth(genActor, backgroundCompendia)
-      await common.rollProfession(genActor, professionCompendia)
+      if (!SDLCGRoller.NO_PROFESSION_ROLL.find(x => x === ancestry.name))
+      {
+        if (pack !== 'sdlc-1014') {await common.rollProfession(genActor, professionCompendia)}
+      }
       if (incarnation) {
         await genActor.update({
           'system.description': genActor.system.description + `<br><strong>INCARNATION SECTION START.</strong><br>`,

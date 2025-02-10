@@ -18,8 +18,10 @@ SDLCGRoller.INCARNATION_TALENT_LIST = [
   'Incarnate',
   'Insubtantial'
 ]
-SDLCGRoller.BACKROUND_NOCHANGE_LIST = ['Cambion', 'Changeling', 'Elf', 'Faun', 'Goblin','Hobgoblin', 'Pixie', 'Sylph']
-SDLCGRoller.PROFESSION_CHANGE_LIST  = ['Elf', 'Hobgoblin', 'Pixie', 'Sylph']
+SDLCGRoller.BACKROUND_NOCHANGE_LIST = ['Cambion', 'Changeling', 'Elf', 'Faun', 'Goblin','Hobgoblin', 'Pixie', 'Sylph','Bugbear','Fomor','Warg']
+SDLCGRoller.PROFESSION_CHANGE_LIST  = ['Elf', 'Hobgoblin', 'Pixie']
+SDLCGRoller.NO_PROFESSION_ROLL  = ['Bugbear','Fomor','Warg']
+SDLCGRoller.NON_PLAYABLE  = ['Bugbear','Fomor','Warg']
 
 async function charGen() {
   if (!game.modules.get('sdlc-1000')?.active) {
