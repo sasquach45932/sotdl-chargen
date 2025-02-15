@@ -20,7 +20,7 @@ SDLCGRoller.INCARNATION_TALENT_LIST = [
 ]
 SDLCGRoller.BACKROUND_NOCHANGE_LIST = ['Cambion', 'Changeling', 'Elf', 'Faun', 'Goblin','Hobgoblin', 'Pixie', 'Sylph','Bugbear','Fomor','Warg']
 SDLCGRoller.PROFESSION_CHANGE_LIST  = ['Elf', 'Hobgoblin', 'Pixie']
-SDLCGRoller.NO_PROFESSION_ROLL  = ['Bugbear','Fomor','Warg']
+SDLCGRoller.NO_PROFESSION_ROLL  = ['Cambion', 'Bugbear','Fomor','Warg']
 SDLCGRoller.NON_PLAYABLE  = ['Bugbear','Fomor','Warg']
 
 async function charGen() {

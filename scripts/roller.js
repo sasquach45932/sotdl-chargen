@@ -556,19 +556,22 @@ export class SDLCGRoller extends FormApplication {
           break
         case 'Hobgoblin':
           await common.rollHobgoblin(genActor, ancestryName)
-          break    
+          break
+        case 'Elf':
+          await common.rollElf(genActor, ancestryName)
+          break
         default:
           await common.rollNotYetImplemented(genActor, ancestryName)
       }
 
-      if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName)) await common.rollPersonalityTraits(genActor)
+      if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName)) 
+        {
+          await common.rollPersonalityTraits(genActor)
       if (interestingThingsCompendia === 'sdlc-1014') await common.rollIntrestingThingTerribleBeauty(genActor)
         else await common.rollIntrestingThing(genActor)
       await common.rollWealth(genActor, backgroundCompendia)
-      if (!SDLCGRoller.NO_PROFESSION_ROLL.find(x => x === ancestry.name))
-      {
-        if (pack !== 'sdlc-1014') {await common.rollProfession(genActor, professionCompendia)}
-      }
+}
+      if (!SDLCGRoller.NO_PROFESSION_ROLL.find(x => x === ancestry.name)) await common.rollProfession(genActor, professionCompendia)
       if (incarnation) {
         await genActor.update({
           'system.description': genActor.system.description + `<br><strong>INCARNATION SECTION START.</strong><br>`,

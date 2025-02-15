@@ -25,14 +25,14 @@ export class SDLCGShared {
       this.allRolltables = this.allRolltables.concat(await c.getDocuments())
     }
 
-    // Prevent rolling the very same profession
-    this.allRolltables.forEach((rolltable) => {
-      if (rolltable.name.includes("Professions")) rolltable.replacement = false
-    });
+    const professionsComp = game.packs.filter(
+      p => p.metadata.packageName.startsWith('sdlc-') && p.metadata.id.includes('professions'),
+    )
 
-    let professionsComp = await game.packs.get('sdlc-1000.professions-sdlc-1000')
-    await professionsComp.getIndex()
-    this.professions = await professionsComp.getDocuments()
+    for await (const c of professionsComp) {
+      await c.getIndex()
+      this.professions = this.professions.concat(await c.getDocuments())
+    }
 
     let weaponsComp = await game.packs.get('demonlord.weapons')
     await weaponsComp.getIndex()
@@ -51,6 +51,40 @@ export class SDLCGShared {
     this.ammunitions = await ammunitionsComp.getDocuments()
     ui.notifications.info(game.i18n.localize('SOTDLCG.CachingEnd'))
   }
+
+  async rollElfFaerieMark(actor) {
+    let label1 = 'One'
+    let label2 = 'Two'
+    let label3 = 'Three'
+    let j
+    let table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Elf Faerie Mark'.toLowerCase())
+    if (table === undefined) return
+    let option = await utils.chooseFromThree(`Number of Elf Faerie Marks!`, label1, label2, label3)
+
+    switch (option) {
+        case label1:
+            j = 1
+            break
+        case label2:
+            j = 2
+            break
+        case label3:
+            j = 3
+            break
+    }
+        let r = await table.drawMany(j, {
+            displayChat: !this.settings.DisableRollChatMessages
+        })
+
+    let description = ''
+    for (let i = 1; i <= j; i++) {        
+        description = description + r.results[i-1].text + ' (Faerie Mark)' + '<br>'
+    }        
+
+        await actor.update({
+            'system.description': actor.system.description + description ,
+        })
+}  
 
   async rollMarkOfDarkness(actor, compendia) {
     let tableName = 'Mark of Darkness'
@@ -270,6 +304,16 @@ async removeTrailingFullStop(string) {
     })
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)      
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    }
+  }
+
+  async rollElf(genActor, ancestryName, compendia, changeling = 0) {
+    await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
+    await this.rollElfFaerieMark(genActor)
+    if (!changeling) {
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+      await this.rollintoDesc(genActor, `${ancestryName} Quirk`)      
       await this.rollintoDesc(genActor, `${ancestryName} Background`)
     }
   }
@@ -529,6 +573,20 @@ async removeTrailingFullStop(string) {
       }
       if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
+
+    if (desc === 'Elf Age') {
+      let age
+      if (r.roll._total === 1) {
+        // Age <50
+        age = 20 + (await utils.rollNoDice('1d30'))
+      }
+      if (r.roll._total >= 2 && r.roll._total <= 3) {
+        // age = "4-8";
+        age = 3 + (await utils.rollDice('1d20 * 50'))
+        description = description.replace('[[/r 1d20 * 50]]', age)        
+      }
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
+    }    
     
 
     if (desc === 'Faun Build') {
@@ -1137,7 +1195,48 @@ async removeTrailingFullStop(string) {
           description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
           break			  
       }
-    }    
+    }
+
+    if (desc === 'Elf Background') {
+      switch (r.roll._total) {
+          case 5:
+              let bText = r.results[0].text
+              let bPos = bText.indexOf(".")
+              if (bPos === -1) {
+                  description = description + bText.substring(0, bText)
+              } else {
+                  description = bText.substring(0, ++bPos)
+              }
+              let result = await utils.rollDice('1d3')
+              break
+          case 6:
+              await actor.update({
+                  'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
+              })
+              break
+          case 7:
+              await actor.update({
+                  'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
+              })
+              break
+          case 9:
+              await actor.update({
+                  'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
+              })
+              break
+          case 17:
+              description = description.replace('[[/r 1d20]]', await utils.rollDice('1d20'))
+              break
+          case 20:
+              let corruptionN = await utils.rollDice('1d3')
+              let corruption = actor.system.characteristics.corruption.value + corruptionN
+              description = description.replace('[[/r 1d3]]', corruptionN)
+              await actor.update({
+                  'system.characteristics.corruption.value': corruption
+              })
+              break
+      }
+  }    
 
     if (desc === 'Diabolical Backgrounds') {
       let corruption 
@@ -1775,19 +1874,27 @@ async rollIntrestingThingTerribleBeauty(actor) {
     let label2 = 'Learn to read'
     let label3 = 'New Profession'
     let j
-    let professionCategory
-
     let ancestryOnActor = await actor.items.find(x => x.type === 'ancestry')
+    let farie = SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryOnActor.name) ? true : false
 
-    if (ancestryOnActor.name === 'Human') {
-      j = 3
-    } else {
-      j = 2
+    switch (ancestryOnActor.name) {
+      case 'Human':
+        j = 3
+        break
+      case 'Elf':
+        j = Math.floor(actor.system.appearance.age/100)
+        break
+      case 'Pixie':
+        j = Math.floor(actor.system.appearance.age/10)        
+        break
+      default:
+        j = 2
+        break
     }
 
     for (let i = 1; i <= j; i++) {
       let option
-      if (i === 3) {
+      if (i === 3 || farie) {
         // Humans: 3 rounds (Common, +1 lang to speak or random prof)
         option = await utils.chooseFromTwo(`Select an option ${j}/${i}!`, label1, label3)
       } else {
@@ -1827,8 +1934,8 @@ async rollIntrestingThingTerribleBeauty(actor) {
             let r = await table.draw({
               displayChat: !this.settings.DisableRollChatMessages,
             })
-            let description = r.results[0].text
-            this.currentProfession = { professionCategory: 'Faerie Profession', professionName: await this.removeTrailingFullStop(r.results[0].text) }
+            let description = await this.removeTrailingFullStop(r.results[0].text)
+            this.currentProfession = { professionCategory: 'Faerie Profession', professionName: description + ' (Age)'  }
           }
           await actor.update({
             'system.description':
