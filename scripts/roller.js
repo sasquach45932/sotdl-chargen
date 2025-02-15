@@ -560,6 +560,9 @@ export class SDLCGRoller extends FormApplication {
         case 'Elf':
           await common.rollElf(genActor, ancestryName)
           break
+        case 'Pixie':
+          await common.rollPixie(genActor, ancestryName)
+          break
         default:
           await common.rollNotYetImplemented(genActor, ancestryName)
       }

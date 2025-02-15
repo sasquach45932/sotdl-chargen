@@ -313,9 +313,19 @@ async removeTrailingFullStop(string) {
     await this.rollElfFaerieMark(genActor)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
-      await this.rollintoDesc(genActor, `${ancestryName} Quirk`)      
+      await this.rollintoDesc(genActor, `${ancestryName} Quirk`)
       await this.rollintoDesc(genActor, `${ancestryName} Background`)
     }
+  }
+
+  async rollPixie(genActor, ancestryName, compendia, changeling = 0) {
+    await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
+    await this.rollintoDesc(genActor, `${ancestryName} Appearance`)    
+    if (!changeling) {
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    }
+    await this.rollintoDesc(genActor, `${ancestryName} Wings`)    
   }
 
   async rollintoDesc(actor, desc, changeling = 0) {
@@ -583,11 +593,31 @@ async removeTrailingFullStop(string) {
       if (r.roll._total >= 2 && r.roll._total <= 3) {
         // age = "4-8";
         age = 3 + (await utils.rollDice('1d20 * 50'))
-        description = description.replace('[[/r 1d20 * 50]]', age)        
+        description = description.replace('[[/r 1d20 * 50]]', age)
       }
       if (!changeling) await actor.update({ 'system.appearance.age': age })
-    }    
-    
+    }
+
+    if (desc === 'Pixie Age') {
+      let age
+      if (r.roll._total === 1) {
+        // Age <5
+        age = 2 + (await utils.rollNoDice('1d3'))
+      }
+      if (r.roll._total >= 2 && r.roll._total <= 3) {
+        // age = "4-8";
+        age = 3 + (await utils.rollDice('1d20 * 5'))
+        description = description.replace('[[/r 1d20 * 5]]', age)
+      }
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
+    }
+
+    if (desc === 'Pixie Appearance') {
+      if (r.roll._total === 14) {
+        let bubbles = await utils.rollDice('1d6')
+        description = description.replace('[[/r 1d6]]', bubbles)
+      }
+    }
 
     if (desc === 'Faun Build') {
       if (r.roll._total === 5 || r.roll._total === 6) {
@@ -1193,7 +1223,7 @@ async removeTrailingFullStop(string) {
           break
         case 19:
           description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
-          break			  
+          break
       }
     }
 
@@ -1236,8 +1266,21 @@ async removeTrailingFullStop(string) {
               })
               break
       }
-  }    
+  }
 
+  if (desc === 'Pixie Background') {
+    switch (r.roll._total) {
+        case 20:
+            let corruptionN = await utils.rollDice('1d3')
+            let corruption = actor.system.characteristics.corruption.value + corruptionN
+            description = description.replace('[[/r 1d3]]', corruptionN)
+            await actor.update({
+                'system.characteristics.corruption.value': corruption
+            })
+            break
+    }
+}
+  
     if (desc === 'Diabolical Backgrounds') {
       let corruption 
       switch (r.roll._total) {
