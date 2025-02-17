@@ -1382,16 +1382,18 @@ async rollIntrestingThingTerribleBeauty(actor) {
     let description = r.results[0].text
     description = description.replace('[[/r 6d6]]', await utils.rollDice('6d6'))
     description = description.replace('[[/r 2d20]]', await utils.rollDice('2d20'))
-
-    notInventoryItemIdList = [6, 20]
+    notInventoryItemIdList = [6, 14, 20]
     result = notInventoryItemIdList.find(x => x === r.roll._total)
     if (result) inventoryItem = false
-    let item = await utils.addInventoryItem(actor, this.weapons, 'Sword')
-    await actor.updateEmbeddedDocuments('Item', [{
-        _id: item[0]._id,
-        name: description
-    }, ])
-
+    if (r.roll._total === 6) {
+      let item = await utils.addInventoryItem(actor, this.weapons, 'Sword')
+      await actor.updateEmbeddedDocuments('Item', [
+        {
+          _id: item[0]._id,
+          name: description,
+        },
+      ])
+    }
     if (inventoryItem) {
         let item = new Item({
             name: description,
@@ -1908,6 +1910,9 @@ async rollIntrestingThingTerribleBeauty(actor) {
         utils.addInventoryItem(actor, this.professions, professionName)
     }
 
+    let ancestryOnActor = await actor.items.find(x => x.type === 'ancestry')
+    let faerie = SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryOnActor.name) ? true : false
+    if (faerie) professionName = professionName + ' (Age)' 
     this.currentProfession = {professionCategory: professionCategory, professionName: professionName}
 
   }
@@ -1918,7 +1923,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
     let label3 = 'New Profession'
     let j
     let ancestryOnActor = await actor.items.find(x => x.type === 'ancestry')
-    let farie = SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryOnActor.name) ? true : false
+    let faerie = SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryOnActor.name) ? true : false
 
     switch (ancestryOnActor.name) {
       case 'Human':
@@ -1937,7 +1942,7 @@ async rollIntrestingThingTerribleBeauty(actor) {
 
     for (let i = 1; i <= j; i++) {
       let option
-      if (i === 3 || farie) {
+      if (i === 3 || faerie) {
         // Humans: 3 rounds (Common, +1 lang to speak or random prof)
         option = await utils.chooseFromTwo(`Select an option ${j}/${i}!`, label1, label3)
       } else {
