@@ -1886,35 +1886,12 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
 
     let professionName = r.results[0].text
-    let pPos
-    let pName
-
-    switch (professionTableNumber) {
-      // Common Professions sometimes contains additional text
-      case 2:
-        pPos = professionName.indexOf('.')
-        if (pPos === -1) {
-          utils.addInventoryItem(actor, this.professions, professionName)
-        } else {
-          pName = professionName.substring(0, pPos)
-          utils.addInventoryItem(actor, this.professions, pName)
-        }
-        break
-      // Religious Professions contains additional text
-      case 5:
-        pPos = professionName.indexOf('.')
-        pName = professionName.substring(0, pPos)
-        utils.addInventoryItem(actor, this.professions, pName)
-        break
-      default:
-        utils.addInventoryItem(actor, this.professions, professionName)
-    }
-
+    professionName = professionName.indexOf('.') === -1 ? professionName : professionName.substr(0, professionName.indexOf('.'))
+    utils.addInventoryItem(actor, this.professions, professionName)
     let ancestryOnActor = await actor.items.find(x => x.type === 'ancestry')
     let faerie = SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryOnActor.name) ? true : false
     if (faerie) professionName = professionName + ' (Age)' 
     this.currentProfession = {professionCategory: professionCategory, professionName: professionName}
-
   }
 
   async rollProfession(actor, professionCompendia) {
