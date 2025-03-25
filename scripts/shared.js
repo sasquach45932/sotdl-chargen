@@ -12,7 +12,7 @@ export class SDLCGShared {
     this.items = []
     this.armors = []
     this.ammunitions = []
-    this.currentProfession = {professionCategory: String, professionName: String}
+    this.currentProfession = { professionCategory: String, professionName: String }
   }
 
   async getData() {
@@ -62,29 +62,29 @@ export class SDLCGShared {
     let option = await utils.chooseFromThree(`Number of Elf Faerie Marks!`, label1, label2, label3)
 
     switch (option) {
-        case label1:
-            j = 1
-            break
-        case label2:
-            j = 2
-            break
-        case label3:
-            j = 3
-            break
+      case label1:
+        j = 1
+        break
+      case label2:
+        j = 2
+        break
+      case label3:
+        j = 3
+        break
     }
-        let r = await table.drawMany(j, {
-            displayChat: !this.settings.DisableRollChatMessages
-        })
+    let r = await table.drawMany(j, {
+      displayChat: !this.settings.DisableRollChatMessages,
+    })
 
     let description = ''
-    for (let i = 1; i <= j; i++) {        
-        description = description + r.results[i-1].text + ' (Faerie Mark)' + '<br>'
-    }        
+    for (let i = 1; i <= j; i++) {
+      description = description + r.results[i - 1].text + ' (Faerie Mark)' + '<br>'
+    }
 
-        await actor.update({
-            'system.description': actor.system.description + description ,
-        })
-}  
+    await actor.update({
+      'system.description': actor.system.description + description,
+    })
+  }
 
   async rollMarkOfDarkness(actor, compendia) {
     let tableName = 'Mark of Darkness'
@@ -92,48 +92,51 @@ export class SDLCGShared {
     let table = await this.allRolltables.find(r => r.name === tableName)
     if (table === undefined) return
     let r = await table.draw({
-        displayChat: !this.settings.DisableRollChatMessages
+      displayChat: !this.settings.DisableRollChatMessages,
     })
     let description = r.results[0].text
 
     if (compendia === 'sdlc-1015') {
-        switch (r.roll._total) {
-            case 8:
-                description = r.results[0].text
-                description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
-                break
-            case 18:
-                description = r.results[0].text
-                let heathPenalty = await utils.rollDice('2d6')
-                description = description.replace('[[/r 2d6]]', heathPenalty)
+      switch (r.roll._total) {
+        case 8:
+          description = r.results[0].text
+          description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
+          break
+        case 18:
+          description = r.results[0].text
+          let heathPenalty = await utils.rollDice('2d6')
+          description = description.replace('[[/r 2d6]]', heathPenalty)
 
-                let actorEffect = await actor.effects.find(x => x.flags.sourceType === 'ancestry' && x.name.includes('(Level 0)'))
-                actorEffect.changes.push({
-                    key: 'system.characteristics.health.max',
-                    mode: 2,
-                    priority: 2,
-                    value: heathPenalty * -1
-                })
-                await actorEffect.update({
-                    changes: actorEffect.changes
-                })
-                description = description + ` (Health reduced!)`
-        }
+          let actorEffect = await actor.effects.find(
+            x => x.flags.sourceType === 'ancestry' && x.name.includes('(Level 0)'),
+          )
+          actorEffect.changes.push({
+            key: 'system.characteristics.health.max',
+            mode: 2,
+            priority: 2,
+            value: heathPenalty * -1,
+          })
+          await actorEffect.update({
+            changes: actorEffect.changes,
+          })
+          description = description + ` (Health reduced!)`
+      }
     }
     await actor.update({
-        'system.description': actor.system.description + `Your mark of darkness: ${description}` + '<br>',
+      'system.description': actor.system.description + `Your mark of darkness: ${description}` + '<br>',
     })
-}
+  }
 
-async removeTrailingFullStop(string) {
-  return string.slice(-1) === '.' ? string.substr(0, string.length-1) : string
-}
+  async removeTrailingFullStop(string) {
+    return string.slice(-1) === '.' ? string.substr(0, string.length - 1) : string
+  }
 
   async rollNotYetImplemented(genActor, ancestryName) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, 0)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
-    if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName)) await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName))
+      await this.rollintoDesc(genActor, `${ancestryName} Background`)
     await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     await this.rollintoDesc(genActor, `${ancestryName} True Form`)
     await this.rollintoDesc(genActor, `${ancestryName} Humanoid Build`)
@@ -148,24 +151,20 @@ async removeTrailingFullStop(string) {
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-        if (compendia === 'sdlc-1015')
-            await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-        else
-            await this.rollintoDesc(genActor, `${ancestryName} Background`)
-        await this.rollintoDesc(genActor, `${ancestryName} Personality`)
-        await this.rollReligion(genActor, `${ancestryName} Religion`)
+      if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
+      await this.rollReligion(genActor, `${ancestryName} Religion`)
     }
-}
+  }
 
   async rollOrc(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      if (compendia === 'sdlc-1015')
-        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-    else
-        await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
@@ -176,10 +175,8 @@ async removeTrailingFullStop(string) {
     await this.rollintoDesc(genActor, `${ancestryName} Distinctive Appearance`)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Odd Habit`)
-      if (compendia === 'sdlc-1015')
-        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-      else
-        await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
@@ -190,10 +187,8 @@ async removeTrailingFullStop(string) {
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Hatred`)
-      if (compendia === 'sdlc-1015')
-        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-      else
-        await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
@@ -206,10 +201,8 @@ async removeTrailingFullStop(string) {
     }
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      if (compendia === 'sdlc-1015')
-        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-      else
-        await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
@@ -249,10 +242,8 @@ async removeTrailingFullStop(string) {
       'system.description': genActor.system.description + `<strong>APPARENT CHARACTERISTICS ENDS.</strong><br><br>`,
     })
 
-    if (compendia === 'sdlc-1015')
-      await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-    else
-      await this.rollintoDesc(genActor, `${ancestryName} Background`)
+    if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+    else await this.rollintoDesc(genActor, `${ancestryName} Background`)
     await this.rollintoDesc(genActor, `${ancestryName} Quirk`)
     await this.rollintoDesc(genActor, `${ancestryName} Personality`)
   }
@@ -262,10 +253,8 @@ async removeTrailingFullStop(string) {
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      if (compendia === 'sdlc-1015')
-        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-      else
-        await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
   }
@@ -275,10 +264,8 @@ async removeTrailingFullStop(string) {
     await this.rollintoDesc(genActor, `${ancestryName} Build`)
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
-      if (compendia === 'sdlc-1015')
-        await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
-      else
-        await this.rollintoDesc(genActor, `${ancestryName} Background`)
+      if (compendia === 'sdlc-1015') await this.rollintoDesc(genActor, `Diabolical Backgrounds`)
+      else await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollReligion(genActor, `${ancestryName} Religion`)
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
     }
@@ -290,7 +277,7 @@ async removeTrailingFullStop(string) {
     await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Upbringing`)
-      await this.rollintoDesc(genActor, `${ancestryName} Personality`)      
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
       await this.rollintoDesc(genActor, `${ancestryName} Background`)
       await this.rollMarkOfDarkness(genActor, compendia)
     }
@@ -303,7 +290,7 @@ async removeTrailingFullStop(string) {
       'system.appearance.weight': '166 lbs',
     })
     if (!changeling) {
-      await this.rollintoDesc(genActor, `${ancestryName} Personality`)      
+      await this.rollintoDesc(genActor, `${ancestryName} Personality`)
       await this.rollintoDesc(genActor, `${ancestryName} Background`)
     }
   }
@@ -320,12 +307,12 @@ async removeTrailingFullStop(string) {
 
   async rollPixie(genActor, ancestryName, compendia, changeling = 0) {
     await this.rollintoDesc(genActor, `${ancestryName} Age`, changeling)
-    await this.rollintoDesc(genActor, `${ancestryName} Appearance`)    
+    await this.rollintoDesc(genActor, `${ancestryName} Appearance`)
     if (!changeling) {
       await this.rollintoDesc(genActor, `${ancestryName} Personality`)
       await this.rollintoDesc(genActor, `${ancestryName} Background`)
     }
-    await this.rollintoDesc(genActor, `${ancestryName} Wings`)    
+    await this.rollintoDesc(genActor, `${ancestryName} Wings`)
   }
 
   async rollintoDesc(actor, desc, changeling = 0) {
@@ -576,7 +563,7 @@ async removeTrailingFullStop(string) {
       if (r.roll._total >= 16 && r.roll._total <= 17) {
         //      age = "25-29";
         age = 24 + (await utils.rollNoDice('1d5'))
-      }      
+      }
       if (r.roll._total === 18) {
         //      age = "30-33";
         age = 29 + (await utils.rollNoDice('1d4'))
@@ -647,7 +634,7 @@ async removeTrailingFullStop(string) {
         await actor.update({
           'system.appearance.height': '5 ft',
           'system.appearance.weight': '198 lbs',
-          'system.characteristics.size': '1',          
+          'system.characteristics.size': '1',
         })
       }
     }
@@ -782,7 +769,7 @@ async removeTrailingFullStop(string) {
           let professionName = r.results[0].text
 
           await actor.update({
-            'system.description': actor.system.description + professionName  + '. (Goblin Background)<br>',
+            'system.description': actor.system.description + professionName + '. (Goblin Background)<br>',
           })
           utils.addInventoryItem(actor, this.professions, professionName)
           break
@@ -819,8 +806,13 @@ async removeTrailingFullStop(string) {
           })
           await this.rollRealProfession(actor)
           await actor.update({
-            'system.description': actor.system.description + this.currentProfession.professionCategory + ': ' + this.currentProfession.professionName + '. (Clockwork Background)<br>',
-          })          
+            'system.description':
+              actor.system.description +
+              this.currentProfession.professionCategory +
+              ': ' +
+              this.currentProfession.professionName +
+              '. (Clockwork Background)<br>',
+          })
           break
         case 3:
           years = await utils.rollDice('1d20')
@@ -876,19 +868,19 @@ async removeTrailingFullStop(string) {
       let defense
       if (r.roll._total === 3) {
         actorEffect = await actor.effects.find(x => x.name === 'Clockwork (Level 0)')
-        actorEffect.changes.push({ key: 'system.characteristics.health.max', mode: 2, priority: 2, value: '-5' })        
+        actorEffect.changes.push({ key: 'system.characteristics.health.max', mode: 2, priority: 2, value: '-5' })
         await actorEffect.update({ changes: actorEffect.changes })
         await actor.update({
           'system.appearance.height': '3 ft',
           'system.appearance.weight': '50 lbs',
-          'system.characteristics.size': '1/2',          
+          'system.characteristics.size': '1/2',
         })
       }
       if (r.roll._total >= 4 && r.roll._total <= 5) {
         await actor.update({
           'system.appearance.height': '3 ft',
           'system.appearance.weight': '50 lbs',
-          'system.characteristics.size': '1/2',          
+          'system.characteristics.size': '1/2',
         })
       }
       if (r.roll._total >= 6 && r.roll._total <= 9) {
@@ -918,7 +910,7 @@ async removeTrailingFullStop(string) {
         await actor.update({
           'system.appearance.height': '10 ft',
           'system.appearance.weight': '750 lbs',
-          'system.characteristics.size': '2',          
+          'system.characteristics.size': '2',
         })
         description = description + ` (Speed and Defense reduced!)`
       }
@@ -935,7 +927,7 @@ async removeTrailingFullStop(string) {
         await actor.update({
           'system.appearance.height': '10 ft',
           'system.appearance.weight': '750 lbs',
-          'system.characteristics.size': '2',               
+          'system.characteristics.size': '2',
         })
         description = description + ` (Speed increased, Defense reduced!)`
       }
@@ -1217,7 +1209,7 @@ async removeTrailingFullStop(string) {
           break
         case 16:
           await utils.addInventoryItem(actor, this.weapons, 'Sword')
-		  break		  
+          break
         case 18:
           description = description.replace('[[/r 1d3]]', await utils.rollDice('1d3'))
           break
@@ -1229,60 +1221,60 @@ async removeTrailingFullStop(string) {
 
     if (desc === 'Elf Background') {
       switch (r.roll._total) {
-          case 5:
-              let bText = r.results[0].text
-              let bPos = bText.indexOf(".")
-              if (bPos === -1) {
-                  description = description + bText.substring(0, bText)
-              } else {
-                  description = bText.substring(0, ++bPos)
-              }
-              let result = await utils.rollDice('1d3')
-              break
-          case 6:
-              await actor.update({
-                  'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
-              })
-              break
-          case 7:
-              await actor.update({
-                  'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
-              })
-              break
-          case 9:
-              await actor.update({
-                  'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
-              })
-              break
-          case 17:
-              description = description.replace('[[/r 1d20]]', await utils.rollDice('1d20'))
-              break
-          case 20:
-              let corruptionN = await utils.rollDice('1d3')
-              let corruption = actor.system.characteristics.corruption.value + corruptionN
-              description = description.replace('[[/r 1d3]]', corruptionN)
-              await actor.update({
-                  'system.characteristics.corruption.value': corruption
-              })
-              break
-      }
-  }
-
-  if (desc === 'Pixie Background') {
-    switch (r.roll._total) {
+        case 5:
+          let bText = r.results[0].text
+          let bPos = bText.indexOf('.')
+          if (bPos === -1) {
+            description = description + bText.substring(0, bText)
+          } else {
+            description = bText.substring(0, ++bPos)
+          }
+          let result = await utils.rollDice('1d3')
+          break
+        case 6:
+          await actor.update({
+            'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
+          })
+          break
+        case 7:
+          await actor.update({
+            'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
+          })
+          break
+        case 9:
+          await actor.update({
+            'system.characteristics.corruption.value': ++actor.system.characteristics.corruption.value,
+          })
+          break
+        case 17:
+          description = description.replace('[[/r 1d20]]', await utils.rollDice('1d20'))
+          break
         case 20:
-            let corruptionN = await utils.rollDice('1d3')
-            let corruption = actor.system.characteristics.corruption.value + corruptionN
-            description = description.replace('[[/r 1d3]]', corruptionN)
-            await actor.update({
-                'system.characteristics.corruption.value': corruption
-            })
-            break
+          let corruptionN = await utils.rollDice('1d3')
+          let corruption = actor.system.characteristics.corruption.value + corruptionN
+          description = description.replace('[[/r 1d3]]', corruptionN)
+          await actor.update({
+            'system.characteristics.corruption.value': corruption,
+          })
+          break
+      }
     }
-}
-  
+
+    if (desc === 'Pixie Background') {
+      switch (r.roll._total) {
+        case 20:
+          let corruptionN = await utils.rollDice('1d3')
+          let corruption = actor.system.characteristics.corruption.value + corruptionN
+          description = description.replace('[[/r 1d3]]', corruptionN)
+          await actor.update({
+            'system.characteristics.corruption.value': corruption,
+          })
+          break
+      }
+    }
+
     if (desc === 'Diabolical Backgrounds') {
-      let corruption 
+      let corruption
       switch (r.roll._total) {
         case 2:
           corruption = ++actor.system.characteristics.corruption.value
@@ -1295,13 +1287,13 @@ async removeTrailingFullStop(string) {
           await actor.update({ 'system.characteristics.corruption.value': corruption })
           break
         case 5:
-           let insanityN = await utils.rollDice('1d6')
-           let insanity = actor.system.characteristics.insanity.value + insanityN
-           description = description.replace('[[/r 1d6]]', insanityN)
-           await actor.update({ 'system.characteristics.insanity.value': insanity })
-           break          
+          let insanityN = await utils.rollDice('1d6')
+          let insanity = actor.system.characteristics.insanity.value + insanityN
+          description = description.replace('[[/r 1d6]]', insanityN)
+          await actor.update({ 'system.characteristics.insanity.value': insanity })
+          break
       }
-    }    
+    }
 
     await actor.update({
       'system.description': actor.system.description + description + '<br>',
@@ -1359,9 +1351,10 @@ async removeTrailingFullStop(string) {
 
     if (inventoryItem) {
       let item = new Item({
-        name: description,
+        name: 'Interesting Thing',
         type: itemType,
         img: 'icons/containers/bags/sack-cloth-tan.webp',
+        system: { description: description },
       })
       await actor.createEmbeddedDocuments('Item', [item])
     }
@@ -1370,14 +1363,16 @@ async removeTrailingFullStop(string) {
     })
   }
 
-async rollIntrestingThingTerribleBeauty(actor) {
+  async rollIntrestingThingTerribleBeauty(actor) {
     let inventoryItem = true
     let result
     let notInventoryItemIdList = []
     let itemType = 'item'
-    let table = await this.allRolltables.find(r => r.name.toUpperCase() === 'INTERESTING THINGS FROM THE HIDDEN KINGDOMS')
+    let table = await this.allRolltables.find(
+      r => r.name.toUpperCase() === 'INTERESTING THINGS FROM THE HIDDEN KINGDOMS',
+    )
     let r = await table.draw({
-        displayChat: !this.settings.DisableRollChatMessages
+      displayChat: !this.settings.DisableRollChatMessages,
     })
     let description = r.results[0].text
     description = description.replace('[[/r 6d6]]', await utils.rollDice('6d6'))
@@ -1395,17 +1390,18 @@ async rollIntrestingThingTerribleBeauty(actor) {
       ])
     }
     if (inventoryItem) {
-        let item = new Item({
-            name: description,
-            type: itemType,
-            img: 'icons/containers/bags/sack-cloth-tan.webp',
-        })
-        await actor.createEmbeddedDocuments('Item', [item])
+      let item = new Item({
+        name: 'Interesting Thing',
+        type: itemType,
+        img: 'icons/containers/bags/sack-cloth-tan.webp',
+        system: { description: description },
+      })
+      await actor.createEmbeddedDocuments('Item', [item])
     }
     await actor.update({
-        'system.description': actor.system.description + 'Your interesting thing: ' + description + '<br>',
+      'system.description': actor.system.description + 'Your interesting thing: ' + description + '<br>',
     })
-}
+  }
 
   async rollPersonalityTraits(actor) {
     let text = 'You are '
@@ -1429,71 +1425,83 @@ async rollIntrestingThingTerribleBeauty(actor) {
   async rollTBWealth(actor) {
     let itemArr = await utils.addInventoryItem(actor, this.armors, 'Clothing')
 
-    await actor.updateEmbeddedDocuments('Item', [{
+    await actor.updateEmbeddedDocuments('Item', [
+      {
         _id: itemArr[0]._id,
         name: 'Clothing, Fine',
         img: 'icons/equipment/chest/shirt-collared-brown.webp',
-    }, ])
+      },
+    ])
 
     itemArr = await utils.addInventoryItem(actor, this.items, 'Cloak')
-    await actor.updateEmbeddedDocuments('Item', [{
+    await actor.updateEmbeddedDocuments('Item', [
+      {
         _id: itemArr[0]._id,
         name: 'Cloak, Fine',
-    }, ])
+      },
+    ])
 
     await utils.addInventoryItem(actor, this.items, 'Quiver or case for bolts')
 
     itemArr = await utils.addInventoryItem(actor, this.weapons, 'Dagger')
-    await actor.updateEmbeddedDocuments('Item', [{
+    await actor.updateEmbeddedDocuments('Item', [
+      {
         _id: itemArr[0]._id,
         name: 'Dagger, Bronze',
-    }, ])
-
+      },
+    ])
 
     itemArr = await utils.addInventoryItem(actor, this.ammunitions, 'Arrows')
-    await actor.updateEmbeddedDocuments('Item', [{
+    await actor.updateEmbeddedDocuments('Item', [
+      {
         _id: itemArr[0]._id,
         'system.quantity': 12,
-    }, ])
+      },
+    ])
 
     let ammoItemId = itemArr[0]._id
 
     itemArr = await utils.addInventoryItem(actor, this.weapons, 'Bow')
-    await actor.updateEmbeddedDocuments('Item', [{
-      _id: itemArr[0]._id,
-      'system.consume.ammorequired': true,
-      'system.consume.ammoitemid' : ammoItemId,
-  }, ])
-
+    await actor.updateEmbeddedDocuments('Item', [
+      {
+        _id: itemArr[0]._id,
+        'system.consume.ammorequired': true,
+        'system.consume.ammoitemid': ammoItemId,
+      },
+    ])
 
     itemArr = await utils.addInventoryItem(actor, this.items, 'Rations (1 week)')
     let qty = await utils.rollDice('1d6')
-    await actor.updateEmbeddedDocuments('Item', [{
+    await actor.updateEmbeddedDocuments('Item', [
+      {
         _id: itemArr[0]._id,
         name: 'Small cakes (for a day)',
         'system.quantity': qty,
         img: 'icons/consumables/grains/waffle-golden-yellow.webp',
-    }, ])
+      },
+    ])
 
     qty = await utils.rollDice('1d3')
     itemArr = await utils.addInventoryItem(actor, this.items, 'Waterskin')
-    await actor.updateEmbeddedDocuments('Item', [{
+    await actor.updateEmbeddedDocuments('Item', [
+      {
         _id: itemArr[0]._id,
         name: 'Bottle of wine',
         'system.quantity': qty,
-        'system.consumabletype' : "F",
-        'system.autoDestroy' : true,
+        'system.consumabletype': 'F',
+        'system.autoDestroy': true,
         img: 'icons/consumables/potions/bottle-bulb-corked-glowing-red.webp',
-    }, ])
+      },
+    ])
 
     await utils.addInventoryItem(actor, this.items, 'Healing Potion')
     await utils.addInventoryItem(actor, this.items, 'Pouch')
 
     let cp = await utils.rollDice('3d6')
     await actor.update({
-        'system.wealth.cp': actor.system.wealth.cp + cp,
-    })    
-  }  
+      'system.wealth.cp': actor.system.wealth.cp + cp,
+    })
+  }
 
   async rollWealth(actor, backgroundCompendia) {
     let label1
@@ -1614,11 +1622,10 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
     //Comfortable
     if (r.roll._total >= 14 && r.roll._total <= 16) {
-      if (backgroundCompendia === 'sdlc-1014')
-        {
-          await this.rollTBWealth(actor)
-          return
-        }
+      if (backgroundCompendia === 'sdlc-1014') {
+        await this.rollTBWealth(actor)
+        return
+      }
       label1 = 'Staff'
       label2 = 'Club'
       label3 = 'Sling with 20 stones'
@@ -1686,11 +1693,10 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
     //Wealthy
     if (r.roll._total === 17) {
-      if (backgroundCompendia === 'sdlc-1014')
-        {
-          await this.rollTBWealth(actor)
-          return
-        }      
+      if (backgroundCompendia === 'sdlc-1014') {
+        await this.rollTBWealth(actor)
+        return
+      }
       await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
       await utils.addInventoryItem(actor, this.items, 'Backpack')
@@ -1747,11 +1753,10 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
     // Rich
     if (r.roll._total === 18) {
-      if (backgroundCompendia === 'sdlc-1014')
-        {
-          await this.rollTBWealth(actor)
-          return
-        }
+      if (backgroundCompendia === 'sdlc-1014') {
+        await this.rollTBWealth(actor)
+        return
+      }
       await utils.addInventoryItem(actor, this.weapons, 'Dagger')
 
       await utils.addInventoryItem(actor, this.items, 'Cloak')
@@ -1782,22 +1787,137 @@ async rollIntrestingThingTerribleBeauty(actor) {
     }
   }
 
-  async rollRealProfession(actor) {
-    let professionCategory
-    let table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Profession Types'.toLowerCase())
-    let r = await table.draw({
-      displayChat: !this.settings.DisableRollChatMessages,
-    })
+  async selectProfession(actor, category) {
+    let profession
+    let categoryS = category + 's'
+    let table = await this.allRolltables.find(r => r.name.toLowerCase() === categoryS.toLowerCase())
+    let professions = table.results
 
-    let professionTableNumber = r.roll._total
+    let dialogOptions = ''
+    for (let profession of professions) {
+      let professionText = profession.text
+
+      if (category === 'Faerie Profession') {
+        professionText = await this.removeTrailingFullStop(professionText)
+        if (professionText.indexOf('.Item.') !== -1) {
+          let itemID = professionText.substring(professionText.indexOf('.Item.') + 6, professionText.lastIndexOf(']'))
+          let x = this.professions.find(x => x._id === itemID)
+          professionText = x.name
+        }
+      }
+
+      professionText =
+        professionText.indexOf('.') === -1 ? professionText : professionText.substr(0, professionText.indexOf('.'))
+
+      if (actor.items.find(x => x.type === 'profession' && x.name === professionText) === undefined) {
+        dialogOptions += `<option value=${profession._id}> ${professionText}</option>`
+      }
+    }
+    let dialogContent = `<form><div class="form-group"><select name="profession">${dialogOptions}</select></div></form>`
+    await Dialog.wait({
+      title: 'Select profession',
+      content: dialogContent,
+      buttons: {
+        Generate: {
+          label: 'Select',
+          callback: async html => {
+            const tableID = html.find('[name=profession]')[0].value
+            profession = professions.find(x => x._id === tableID).text
+          },
+          icon: `<i class="fas fa-check"></i>`,
+        },
+        Cancel: {
+          label: 'Cancel',
+          icon: `<i class="fas fa-times"></i>`,
+        },
+      },
+    })
+    return profession
+  }
+
+  async selectProfessionCategory() {
+    let professionTableNumber = 1
+    let professionTables = this.allRolltables.filter(
+      x => x.name.includes('Professions') && x.name !== 'Faerie Professions',
+    )
+    await utils.sortArrayByName(professionTables)
+
+    let dialogOptions = ''
+    for (let professionCategory of professionTables) {
+      dialogOptions += `<option value=${professionCategory._id}> ${professionCategory.name}</option>`
+    }
+    let dialogContent = `<form><div class="form-group"><select name="profession">${dialogOptions}</select></div></form>`
+    await Dialog.wait({
+      title: 'Select profession category',
+      content: dialogContent,
+      buttons: {
+        Generate: {
+          label: 'Select',
+          callback: async html => {
+            const tableID = html.find('[name=profession]')[0].value
+            let professionSelected = professionTables.find(x => x.id === tableID)
+            switch (professionSelected.name) {
+              case 'Academic Professions':
+                professionTableNumber = 1
+                break
+              case 'Common Professions':
+                professionTableNumber = 2
+                break
+              case 'Criminal Professions':
+                professionTableNumber = 3
+                break
+              case 'Martial Professions':
+                professionTableNumber = 4
+                break
+              case 'Religious Professions':
+                professionTableNumber = 5
+                break
+              case 'Wilderness Professions':
+                professionTableNumber = 6
+                break
+            }
+          },
+          icon: `<i class="fas fa-check"></i>`,
+        },
+        Cancel: {
+          label: 'Cancel',
+          icon: `<i class="fas fa-times"></i>`,
+        },
+      },
+    })
+    return professionTableNumber
+  }
+
+  async rollRealProfession(actor, professionCompendia = 'sdlc-1000') {
+    let professionCategory
+    let professionTableNumber
+    let table
+    let r
+    let profession
+
+    if (!this.settings.ProfessionManualSelect) {
+      table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Profession Types'.toLowerCase())
+      r = await table.draw({
+        displayChat: !this.settings.DisableRollChatMessages,
+      })
+      professionTableNumber = r.roll._total
+    } else {
+      professionTableNumber = await this.selectProfessionCategory()
+    }
 
     switch (professionTableNumber) {
       case 1:
         professionCategory = 'Academic Profession'
-        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Academic Professions'.toLowerCase())
-        r = await table.draw({
-          displayChat: !this.settings.DisableRollChatMessages,
-        })
+
+        if (!this.settings.ProfessionManualSelect) {
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Academic Professions'.toLowerCase())
+          r = await table.draw({
+            displayChat: !this.settings.DisableRollChatMessages,
+          })
+        } else {
+          profession = await this.selectProfession(actor, professionCategory)
+        }
+
         let lang
 
         if (actor.items.find(x => x.type === 'language' && (!x.system.read || !x.system.write)) != undefined) {
@@ -1824,25 +1944,37 @@ async rollIntrestingThingTerribleBeauty(actor) {
         break
       case 2:
         professionCategory = 'Common Profession'
-        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Common Professions'.toLowerCase())
-        r = await table.draw({
-          displayChat: !this.settings.DisableRollChatMessages,
-        })
+        if (!this.settings.ProfessionManualSelect) {
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Common Professions'.toLowerCase())
+          r = await table.draw({
+            displayChat: !this.settings.DisableRollChatMessages,
+          })
+        } else {
+          profession = await this.selectProfession(actor, professionCategory)
+        }
         break
       case 3:
         professionCategory = 'Criminal Profession'
-        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
-        r = await table.draw({
-          displayChat: !this.settings.DisableRollChatMessages,
-        })
+        if (!this.settings.ProfessionManualSelect) {
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
+          r = await table.draw({
+            displayChat: !this.settings.DisableRollChatMessages,
+          })
+        } else {
+          profession = await this.selectProfession(actor, professionCategory)
+        }
         break
       case 4:
         professionCategory = 'Martial Profession'
-        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Martial Professions'.toLowerCase())
-        r = await table.draw({
-          displayChat: !this.settings.DisableRollChatMessages,
-        })
-        break
+        if (!this.settings.ProfessionManualSelect) {
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Martial Professions'.toLowerCase())
+          r = await table.draw({
+            displayChat: !this.settings.DisableRollChatMessages,
+          })
+          break
+        } else {
+          profession = await this.selectProfession(actor, professionCategory)
+        }
       case 5:
         professionCategory = 'Religious Profession'
         let nlang
@@ -1878,20 +2010,25 @@ async rollIntrestingThingTerribleBeauty(actor) {
         break
       case 6:
         professionCategory = 'Wilderness Profession'
-        table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Wilderness Professions'.toLowerCase())
-        r = await table.draw({
-          displayChat: !this.settings.DisableRollChatMessages,
-        })
+        if (!this.settings.ProfessionManualSelect) {
+          table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Wilderness Professions'.toLowerCase())
+          r = await table.draw({
+            displayChat: !this.settings.DisableRollChatMessages,
+          })
+        } else {
+          profession = await this.selectProfession(actor, professionCategory)
+        }
         break
     }
 
-    let professionName = r.results[0].text
-    professionName = professionName.indexOf('.') === -1 ? professionName : professionName.substr(0, professionName.indexOf('.'))
+    let professionName = this.settings.ProfessionManualSelect ? profession : r.results[0].text
+    professionName =
+      professionName.indexOf('.') === -1 ? professionName : professionName.substr(0, professionName.indexOf('.'))
     utils.addInventoryItem(actor, this.professions, professionName)
     let ancestryOnActor = await actor.items.find(x => x.type === 'ancestry')
     let faerie = SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryOnActor.name) ? true : false
-    if (faerie) professionName = professionName + ' (Age)' 
-    this.currentProfession = {professionCategory: professionCategory, professionName: professionName}
+    if (faerie) professionName = professionName + ' (Age)'
+    this.currentProfession = { professionCategory: professionCategory, professionName: professionName }
   }
 
   async rollProfession(actor, professionCompendia) {
@@ -1907,10 +2044,10 @@ async rollIntrestingThingTerribleBeauty(actor) {
         j = 3
         break
       case 'Elf':
-        j = Math.floor(actor.system.appearance.age/100)
+        j = Math.floor(actor.system.appearance.age / 100)
         break
       case 'Pixie':
-        j = Math.floor(actor.system.appearance.age/10)        
+        j = Math.floor(actor.system.appearance.age / 10)
         break
       default:
         j = 2
@@ -1955,12 +2092,26 @@ async rollIntrestingThingTerribleBeauty(actor) {
         case label3:
           if (professionCompendia === 'sdlc-1000') await this.rollRealProfession(actor)
           else {
-            let table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Faerie Professions'.toLowerCase())
-            let r = await table.draw({
-              displayChat: !this.settings.DisableRollChatMessages,
-            })
-            let description = await this.removeTrailingFullStop(r.results[0].text)
-            this.currentProfession = { professionCategory: 'Faerie Profession', professionName: description + ' (Age)'  }
+            let description
+            if (!this.settings.ProfessionManualSelect) {
+              let table = await this.allRolltables.find(
+                r => r.name.toLowerCase() === 'Faerie Professions'.toLowerCase(),
+              )
+              let r = await table.draw({
+                displayChat: !this.settings.DisableRollChatMessages,
+              })
+              description = await this.removeTrailingFullStop(r.results[0].text)
+
+              if (description.indexOf('.Item.') !== -1) {
+                let itemID = description.substring(description.indexOf('.Item.') + 6, description.lastIndexOf(']'))
+                let x = this.professions.find(x => x._id === itemID)
+                description = x.name
+              }
+            } else {
+              description = await this.selectProfession(actor, 'Faerie Profession')
+            }
+            utils.addInventoryItem(actor, this.professions, description)
+            this.currentProfession = { professionCategory: 'Faerie Profession', professionName: description + ' (Age)' }
           }
           await actor.update({
             'system.description':

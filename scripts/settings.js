@@ -10,6 +10,15 @@ export function registerSettings() {
     config: true,
   })
 
+  game.settings.register(settingsKey, "ProfessionManualSelect", {
+    name: game.i18n.localize("SOTDLCG.SettingProfessionManualSelect"),
+    hint: game.i18n.localize("SOTDLCG.SettingProfessionManualSelectHint"),
+    scope: "world",
+    type: Boolean,
+    default: true,
+    config: true,
+  })  
+
   game.settings.register(settingsKey, "DisableRollChatMessages", {
     name: game.i18n.localize("SOTDLCG.SettingDisableRollChatMessages"),
     hint: game.i18n.localize("SOTDLCG.SettingDisableRollChatMessagesHint"),

@@ -9,6 +9,8 @@
     "SOTDLCG.SettingDisableRollChatMessagesHint": "If checked, table roll results are not displed in chat.",
     "SOTDLCG.SettingDisable3Ddice":"Disable animations.",
     "SOTDLCG.SettingDisable3DdiceHint" : "If set Dice So Nice! animations are disabled.",
+    "SOTDLCG.SettingProfessionManualSelect" : "Manual selection of professions",
+    "SOTDLCG.SettingProfessionManualSelectHint" : "If checked, the professions and their categories must be selected manually.",
     "SOTDLCG.Attribute": "Attribute",
     "SOTDLCG.Fixed": "Base",
     "SOTDLCG.Rolled": "Result",
