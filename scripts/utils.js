@@ -56,25 +56,17 @@ export async function addtionalLangToSpeak(actor) {
     dialogOptions += `<option value=${lang._id}> ${lang.name}</option>`
   }
   let dialogContent = `<form><div class="form-group"><select name="language">${dialogOptions}</select></div></form>`
-  await Dialog.wait({
-    title: 'Select an addition language to speak',
+  const languageID = await foundry.applications.api.DialogV2.prompt({
+    window: { title: 'Select an addition language to speak' },
     content: dialogContent,
-    buttons: {
-      Generate: {
-        label: 'Select',
-        callback: async html => {
-          const languageID = html.find('[name=language]')[0].value
-          langItem = languageComp.find(l => l.id === languageID)
-          await actor.createEmbeddedDocuments('Item', [langItem])
-        },
-        icon: `<i class="fas fa-check"></i>`,
-      },
-      Cancel: {
-        label: 'Cancel',
-        icon: `<i class="fas fa-times"></i>`,
-      },
+    position: { width: 400 },
+    ok: {
+      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object,
     },
   })
+
+  langItem = languageComp.find(l => l.id === languageID.language)
+  await actor.createEmbeddedDocuments('Item', [langItem])
   return langItem
 }
 
@@ -91,119 +83,97 @@ export async function chooseClubOrSling(actor) {
   await ammunitionsComp.getIndex()
   let ammunitions = await ammunitionsComp.getDocuments()
 
-  const formResult = await Dialog.wait({
-    title: 'Choose a weapon!',
-    buttons: {
-      a: {
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: 'Choose a weapon!' },
+    position: { width: 400 },
+    buttons: [
+      {
         label: 'Club',
+        action: 'Club',
+        default: true,
         callback: async html => {
           let club = weapons.find(l => l.name === 'Club')
           await actor.createEmbeddedDocuments('Item', [club])
         },
       },
-      b: {
+      {
         label: 'Sling with 20 stones',
+        action: 'label3',
         callback: async html => {
           await addInventorySlingsAndStones(actor, ammunitionsComp, weaponsComp)
         },
       },
-    },
-    default: 'a',
+    ],
   })
 }
 
 export async function chooseFromTwo(title, label1, label3) {
-  let result
-  const formResult = await Dialog.wait({
-    title: title,
-    buttons: {
-      a: {
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: title },
+    position: { width: 400 },
+    buttons: [
+      {
         label: label1,
-        callback: async html => {
-          result = label1
-        },
+        action: label1,
       },
-      c: {
+      {
         label: label3,
-        callback: async html => {
-          result = label3
-        },
+        action: label3,
       },
-    },
-    default: 'a',
+    ],
   })
   return result
 }
 
 export async function chooseFromThree(title, label1, label2, label3, wwidth = 500) {
-  let result
-  const formResult = await Dialog.wait(
-    {
-      title: title,
-      buttons: {
-        a: {
-          label: label1,
-          callback: async html => {
-            result = label1
-          },
-        },
-        b: {
-          label: label2,
-          callback: async html => {
-            result = label2
-          },
-        },
-        c: {
-          label: label3,
-          callback: async html => {
-            result = label3
-          },
-        },
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: title },
+    position: { width: wwidth },
+    buttons: [
+      {
+        label: label1,
+        action: label1,
       },
-      default: 'a',
-    },
-    { width: wwidth },
-  )
+      {
+        label: label2,
+        action: label2,
+      },
+      {
+        label: label3,
+        action: label3,
+      },
+    ],
+  })
   return result
 }
 
 export async function chooseFromFour(title, label1, label2, label3, label4) {
-  let result
-  const formResult = await Dialog.wait({
-    title: title,
-    buttons: {
-      a: {
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: title },
+    position: { width: 500 },
+    buttons: [
+      {
         label: label1,
-        callback: async html => {
-          result = label1
-        },
+        action: label1,
       },
-      b: {
+      {
         label: label2,
-        callback: async html => {
-          result = label2
-        },
+        action: label2,
       },
-      c: {
+      {
         label: label3,
-        callback: async html => {
-          result = label3
-        },
+        action: label3,
       },
-      d: {
+      {
         label: label4,
-        callback: async html => {
-          result = label4
-        },
+        action: label4,
       },
-    },
-    default: 'a',
+    ],
   })
   return result
 }
 
 export async function chooseFromFive(title, label1, label2, label3, label4, label5) {
-  let result
   let i = 0
 
   let dialogOptionsArray = [label1, label2, label3, label4, label5]
@@ -213,26 +183,18 @@ export async function chooseFromFive(title, label1, label2, label3, label4, labe
     dialogOptions += `<option value=${i}> ${options}</option>`
     i++
   }
-  let dialogContent = `<form><div class="form-group"><select name="optionz">${dialogOptions}</select></div></form>`
+  let dialogContent = `<form><div class="form-group"><select name="options">${dialogOptions}</select></div></form>`
 
-  await Dialog.wait({
-    title: title,
+  const result = await foundry.applications.api.DialogV2.prompt({
+    window: { title: title },
     content: dialogContent,
-    buttons: {
-      a: {
-        label: 'Select',
-        callback: async html => {
-          result = html.find('[name=optionz]')[0].value
-        },
-      },
-      b: {
-        label: 'Cancel',
-        callback: async html => {},
-      },
+    position: { width: 400 },
+    ok: {
+      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object,
     },
-    default: 'a',
   })
-  return dialogOptionsArray[result]
+
+  return dialogOptionsArray[result.options]
 }
 
 export async function langToReadWrite(actor, mode = 'read') {
@@ -259,25 +221,15 @@ export async function langToReadWrite(actor, mode = 'read') {
     i++
   }
   let dialogContent = `<form><div class="form-group"><select name="language">${dialogOptions}</select></div></form>`
-  await Dialog.wait({
-    title: title,
+  const languageID = await foundry.applications.api.DialogV2.prompt({
+    window: { title: title },
     content: dialogContent,
-    buttons: {
-      Generate: {
-        label: 'Select',
-        callback: async html => {
-          const languageID = html.find('[name=language]')[0].value
-          result = availableLangs[languageID]
-        },
-        icon: `<i class="fas fa-check"></i>`,
-      },
-      Cancel: {
-        label: 'Cancel',
-        icon: `<i class="fas fa-times"></i>`,
-      },
+    position: { width: 400 },
+    ok: {
+      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object,
     },
   })
-  return result
+  return availableLangs[languageID.language]
 }
 
 export function removeSign(x) {
@@ -292,8 +244,8 @@ export async function rollDice(formula) {
 }
 
 export async function rollNoDice(formula) {
-  let roll = formula.split("1d").pop()
-  return Math.round(Math.random() * (roll-1) + 1)
+  let roll = formula.split('1d').pop()
+  return Math.round(Math.random() * (roll - 1) + 1)
 }
 
 export function setSign(x) {

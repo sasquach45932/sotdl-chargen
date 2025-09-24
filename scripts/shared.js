@@ -78,7 +78,7 @@ export class SDLCGShared {
 
     let description = ''
     for (let i = 1; i <= j; i++) {
-      description = description + r.results[i - 1].text + ' (Faerie Mark)' + '<br>'
+      description = description + r.results[i - 1].description + ' (Faerie Mark)' + '<br>'
     }
 
     await actor.update({
@@ -94,16 +94,16 @@ export class SDLCGShared {
     let r = await table.draw({
       displayChat: !this.settings.DisableRollChatMessages,
     })
-    let description = r.results[0].text
+    let description = r.results[0].description
 
     if (compendia === 'sdlc-1015') {
       switch (r.roll._total) {
         case 8:
-          description = r.results[0].text
+          description = r.results[0].description
           description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
           break
         case 18:
-          description = r.results[0].text
+          description = r.results[0].description
           let heathPenalty = await utils.rollDice('2d6')
           description = description.replace('[[/r 2d6]]', heathPenalty)
 
@@ -215,7 +215,7 @@ export class SDLCGShared {
     await this.rollintoDesc(genActor, `${ancestryName} Apparent Gender`)
     let table = await this.allRolltables.find(r => r.name === 'Changeling Apparent Ancestry')
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-    let description = r.results[0].text
+    let description = r.results[0].description
     let pPos = description.indexOf('.')
     let sDescription = description.substring(0, pPos + 1)
     await genActor.update({
@@ -319,7 +319,7 @@ export class SDLCGShared {
     let table = await this.allRolltables.find(r => r.name === desc)
     if (table === undefined) return
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-    let description = r.results[0].text
+    let description = r.results[0].description
     if (desc === 'Human Age') {
       let age
       if (r.roll._total === 3) {
@@ -344,7 +344,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '76+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Clockwork Age') {
@@ -367,7 +367,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '150+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Dwarf Age') {
@@ -394,7 +394,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '151+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Dwarf Hatred') {
@@ -425,7 +425,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '76+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Orc Age') {
@@ -452,7 +452,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '33+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Changeling True Age') {
@@ -479,7 +479,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '61+'
       }
-      await actor.update({ 'system.appearance.age': age })
+      await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Faun Age' || desc === 'Halfling Age') {
@@ -506,7 +506,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '76+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Cambion Age') {
@@ -536,7 +536,7 @@ export class SDLCGShared {
         age = '76+'
         await actor.update({ 'system.characteristics.corruption.value': 3 })
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Hobgoblin Age') {
@@ -568,7 +568,7 @@ export class SDLCGShared {
         //      age = "30-33";
         age = 29 + (await utils.rollNoDice('1d4'))
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Elf Age') {
@@ -582,7 +582,7 @@ export class SDLCGShared {
         age = 3 + (await utils.rollDice('1d20 * 50'))
         description = description.replace('[[/r 1d20 * 50]]', age)
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Pixie Age') {
@@ -596,7 +596,7 @@ export class SDLCGShared {
         age = 3 + (await utils.rollDice('1d20 * 5'))
         description = description.replace('[[/r 1d20 * 5]]', age)
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age })
+      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
     }
 
     if (desc === 'Pixie Appearance') {
@@ -766,7 +766,7 @@ export class SDLCGShared {
         case 12:
           table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Criminal Professions'.toLowerCase())
           r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-          let professionName = r.results[0].text
+          let professionName = r.results[0].description
 
           await actor.update({
             'system.description': actor.system.description + professionName + '. (Goblin Background)<br>',
@@ -1144,7 +1144,7 @@ export class SDLCGShared {
           r = await table.draw({
             displayChat: !this.settings.DisableRollChatMessages,
           })
-          let professionName = r.results[0].text
+          let professionName = r.results[0].description
           await actor.update({
             'system.description': actor.system.description + 'Profession (From Background): ' + professionName + '<br>',
           })
@@ -1222,7 +1222,7 @@ export class SDLCGShared {
     if (desc === 'Elf Background') {
       switch (r.roll._total) {
         case 5:
-          let bText = r.results[0].text
+          let bText = r.results[0].description
           let bPos = bText.indexOf('.')
           if (bPos === -1) {
             description = description + bText.substring(0, bText)
@@ -1308,7 +1308,7 @@ export class SDLCGShared {
     let itemType = 'item'
     let table = await this.allRolltables.find(r => r.name === 'Interesting Things Table ' + iThingsTNr)
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-    let description = r.results[0].text
+    let description = r.results[0].description
     description = description.replace('[[/r 1d6]]', await utils.rollDice('1d6'))
     description = description.replace('[[/r 1d6 + 1]]', await utils.rollDice('1d6+1'))
     description = description.replace('[[/r 2d6]]', await utils.rollDice('2d6'))
@@ -1374,7 +1374,7 @@ export class SDLCGShared {
     let r = await table.draw({
       displayChat: !this.settings.DisableRollChatMessages,
     })
-    let description = r.results[0].text
+    let description = r.results[0].description
     description = description.replace('[[/r 6d6]]', await utils.rollDice('6d6'))
     description = description.replace('[[/r 2d20]]', await utils.rollDice('2d20'))
     notInventoryItemIdList = [6, 14, 20]
@@ -1407,10 +1407,10 @@ export class SDLCGShared {
     let text = 'You are '
     let table = await this.allRolltables.find(r => r.name === 'Positive Personality Traits')
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-    text += r.results[0].text.toLowerCase() + ' and '
+    text += r.results[0].description.toLowerCase() + ' and '
     table = await this.allRolltables.find(r => r.name === 'Negative Personality Traits')
     r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-    text += r.results[0].text.toLowerCase() + '.'
+    text += r.results[0].description.toLowerCase() + '.'
     await actor.update({
       'system.description': actor.system.description + text + '<br>',
     })
@@ -1419,7 +1419,7 @@ export class SDLCGShared {
   async rollReligion(actor, religion) {
     let table = await this.allRolltables.find(r => r.name === religion)
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-    await actor.update({ 'system.religion.value': r.results[0].text })
+    await actor.update({ 'system.religion.value': r.results[0].description })
   }
 
   async rollTBWealth(actor) {
@@ -1512,7 +1512,7 @@ export class SDLCGShared {
     let option
     let table = await this.allRolltables.find(r => r.name === 'Wealth')
     let r = await table.draw({ displayChat: !this.settings.DisableRollChatMessages })
-    let description = r.results[0].text
+    let description = r.results[0].description
 
     let spacePos = description.indexOf(' ')
     let lifeStyle = description.substring(0, spacePos)
@@ -1795,7 +1795,7 @@ export class SDLCGShared {
 
     let dialogOptions = ''
     for (let profession of professions) {
-      let professionText = profession.text
+      let professionText = profession.name ? profession.name : profession.description
 
       if (category === 'Faerie Profession') {
         professionText = await this.removeTrailingFullStop(professionText)
@@ -1814,25 +1814,29 @@ export class SDLCGShared {
       }
     }
     let dialogContent = `<form><div class="form-group"><select name="profession">${dialogOptions}</select></div></form>`
-    await Dialog.wait({
-      title: 'Select profession',
+
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: 'Select profession' },
       content: dialogContent,
-      buttons: {
-        Generate: {
-          label: 'Select',
-          callback: async html => {
-            const tableID = html.find('[name=profession]')[0].value
-            profession = professions.find(x => x._id === tableID).text
-          },
-          icon: `<i class="fas fa-check"></i>`,
-        },
-        Cancel: {
-          label: 'Cancel',
-          icon: `<i class="fas fa-times"></i>`,
-        },
+      position: { width: 400 },
+      ok: {
+        callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object,
       },
     })
-    return profession
+
+    profession = professions.find(x => x._id === result.profession)
+
+    if (profession.description.startsWith('@UUID')) {
+      let pDesc = profession.description
+      let myRegexp = /Item.(.*)/
+      let match = myRegexp.exec(pDesc)
+      let itemId = match[1]
+      itemId = itemId.substr(0, itemId.indexOf(']'))
+      let pPack = profession.pack
+      pPack = pPack.replace('tables', 'professions')
+      let prof = this.professions.find(x => x.pack === pPack && x._id === itemId)
+      return prof.name
+    } else return profession.name
   }
 
   async selectProfessionCategory() {
@@ -1847,44 +1851,38 @@ export class SDLCGShared {
       dialogOptions += `<option value=${professionCategory._id}> ${professionCategory.name}</option>`
     }
     let dialogContent = `<form><div class="form-group"><select name="profession">${dialogOptions}</select></div></form>`
-    await Dialog.wait({
-      title: 'Select profession category',
+
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: 'Select profession category' },
       content: dialogContent,
-      buttons: {
-        Generate: {
-          label: 'Select',
-          callback: async html => {
-            const tableID = html.find('[name=profession]')[0].value
-            let professionSelected = professionTables.find(x => x.id === tableID)
-            switch (professionSelected.name) {
-              case 'Academic Professions':
-                professionTableNumber = 1
-                break
-              case 'Common Professions':
-                professionTableNumber = 2
-                break
-              case 'Criminal Professions':
-                professionTableNumber = 3
-                break
-              case 'Martial Professions':
-                professionTableNumber = 4
-                break
-              case 'Religious Professions':
-                professionTableNumber = 5
-                break
-              case 'Wilderness Professions':
-                professionTableNumber = 6
-                break
-            }
-          },
-          icon: `<i class="fas fa-check"></i>`,
-        },
-        Cancel: {
-          label: 'Cancel',
-          icon: `<i class="fas fa-times"></i>`,
-        },
+      position: { width: 400 },
+      ok: {
+        callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object,
       },
     })
+
+    let professionSelected = professionTables.find(x => x.id === result.profession)
+    switch (professionSelected.name) {
+      case 'Academic Professions':
+        professionTableNumber = 1
+        break
+      case 'Common Professions':
+        professionTableNumber = 2
+        break
+      case 'Criminal Professions':
+        professionTableNumber = 3
+        break
+      case 'Martial Professions':
+        professionTableNumber = 4
+        break
+      case 'Religious Professions':
+        professionTableNumber = 5
+        break
+      case 'Wilderness Professions':
+        professionTableNumber = 6
+        break
+    }
+
     return professionTableNumber
   }
 
@@ -1976,6 +1974,7 @@ export class SDLCGShared {
           profession = await this.selectProfession(actor, professionCategory)
         }
       case 5:
+        // TODO!!!!!
         professionCategory = 'Religious Profession'
         let nlang
         table = await this.allRolltables.find(r => r.name.toLowerCase() === 'Religious Professions'.toLowerCase())
@@ -2021,7 +2020,7 @@ export class SDLCGShared {
         break
     }
 
-    let professionName = this.settings.ProfessionManualSelect ? profession : r.results[0].text
+    let professionName = this.settings.ProfessionManualSelect ? profession : r.results[0].description
     professionName =
       professionName.indexOf('.') === -1 ? professionName : professionName.substr(0, professionName.indexOf('.'))
     utils.addInventoryItem(actor, this.professions, professionName)
@@ -2100,7 +2099,7 @@ export class SDLCGShared {
               let r = await table.draw({
                 displayChat: !this.settings.DisableRollChatMessages,
               })
-              description = await this.removeTrailingFullStop(r.results[0].text)
+              description = await this.removeTrailingFullStop(r.results[0].description)
 
               if (description.indexOf('.Item.') !== -1) {
                 let itemID = description.substring(description.indexOf('.Item.') + 6, description.lastIndexOf(']'))

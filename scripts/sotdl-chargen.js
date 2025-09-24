@@ -16,12 +16,24 @@ SDLCGRoller.INCARNATION_TALENT_LIST = [
   'Ephemeral',
   'Contact',
   'Incarnate',
-  'Insubtantial'
+  'Insubtantial',
 ]
-SDLCGRoller.BACKROUND_NOCHANGE_LIST = ['Cambion', 'Changeling', 'Elf', 'Faun', 'Goblin','Hobgoblin', 'Pixie', 'Sylph','Bugbear','Fomor','Warg']
-SDLCGRoller.PROFESSION_CHANGE_LIST  = ['Elf', 'Hobgoblin', 'Pixie']
-SDLCGRoller.NO_PROFESSION_ROLL  = ['Cambion', 'Bugbear','Fomor','Warg']
-SDLCGRoller.NON_PLAYABLE  = ['Bugbear','Fomor','Warg']
+SDLCGRoller.BACKROUND_NOCHANGE_LIST = [
+  'Cambion',
+  'Changeling',
+  'Elf',
+  'Faun',
+  'Goblin',
+  'Hobgoblin',
+  'Pixie',
+  'Sylph',
+  'Bugbear',
+  'Fomor',
+  'Warg',
+]
+SDLCGRoller.PROFESSION_CHANGE_LIST = ['Elf', 'Hobgoblin', 'Pixie']
+SDLCGRoller.NO_PROFESSION_ROLL = ['Cambion', 'Bugbear', 'Fomor', 'Warg']
+SDLCGRoller.NON_PLAYABLE = ['Bugbear', 'Fomor', 'Warg']
 
 async function charGen() {
   if (!game.modules.get('sdlc-1000')?.active) {
@@ -35,17 +47,13 @@ Hooks.once('init', () => {
   registerSettings()
 })
 
-Hooks.on('getSceneControlButtons', buttons => {
-  let tokenButton = buttons.find(b => b.name == 'token')
-
-  if (tokenButton) {
-    tokenButton.tools.push({
-      name: 'SDLCGRoller',
-      title: game.i18n.localize('SOTDLCG.ControlTitle'),
-      icon: 'fas fa-dice',
-      visible: game.user.isGM,
-      onClick: () => charGen(),
-      button: true,
-    })
+Hooks.on('getSceneControlButtons', controls => {
+  controls.tokens.tools.SDLCGRoller = {
+    name: 'SDLCGRoller',
+    title: game.i18n.localize('SOTDLCG.ControlTitle'),
+    icon: 'fas fa-dice',
+    visible: game.user.isGM,
+    onChange: () => charGen(),
+    button: true,
   }
 })
