@@ -2,7 +2,8 @@ import { RegisteredSettings } from './registered-settings.js'
 import * as utils from './utils.js'
 import * as shared from './shared.js'
 
-export class SDLCGRoller extends FormApplication {
+const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api
+export class SDLCGRoller extends HandlebarsApplicationMixin(ApplicationV2) {
   settings = new RegisteredSettings()
   constructor(...args) {
     super(...args)
@@ -12,25 +13,42 @@ export class SDLCGRoller extends FormApplication {
     this.backgroundArray = []
     this.markOfDarknessArray = []
     this.professionArray = []
-    this.interestingThingsArray = []    
+    this.interestingThingsArray = []
     this.dispositionArray = []
     this.malusUsed = false
     this.folderName = 'CharGen Actors'
     if (this.settings.DefaultFolderName.length) this.folderName = this.settings.DefaultFolderName
   }
 
-  static get defaultOptions() {
-    let template = './modules/sotdl-chargen/templates/roller.hbs'
-    const options = super.defaultOptions
-    options.title = game.i18n.localize('SOTDLCG.ControlTitle')
-    options.id = 'sotdl-chargen'
-    options.template = template
-    options.closeOnSubmit = false
-    options.popOut = true
-    options.width = 400
-    options.height = 'auto'
-    options.classes = ['sotdl-chargen']
-    return options
+  //static get defaultOptions() {
+  static DEFAULT_OPTIONS = {
+    id: 'sotdl-chargen',
+    form: {
+      handler: SDLCGRoller.onSubmit,
+      closeOnSubmit: false,
+    },
+    position: {
+      width: 440,
+      height: 'auto',
+    },
+    tag: 'form',
+    window: {
+      title: 'advanced-settings.app_title',
+      contentClasses: ['standard-form'],
+    },
+  }
+
+  static PARTS = {
+    body: {
+      template: './modules/sotdl-chargen/templates/roller.hbs',
+    },
+    footer: {
+      template: 'templates/generic/form-footer.hbs',
+    },
+  }
+
+  get title() {
+    return `${game.i18n.localize('SOTDLCG.ControlTitle')}`
   }
 
   async checkfolder() {
@@ -55,7 +73,7 @@ export class SDLCGRoller extends FormApplication {
     return actor
   }
 
-  async getData() {
+  async _prepareContext(options) {
     const ancestriesComp = game.packs.filter(
       p => p.metadata.packageName.startsWith('sdlc-') && p.metadata.id.includes('ancestries'),
     )
@@ -69,39 +87,39 @@ export class SDLCGRoller extends FormApplication {
 
     for (var ancestry of ancestries) {
       if (ancestry.name != 'Incarnation') {
-          ancestryArray.push({
-              name: SDLCGRoller.SUPPORTED_PACKS.find(x => x === ancestry.pack) ? ancestry.name : `${ancestry.name} †`,
-              pack: ancestry.pack,
-              id: ancestry.id,
-              str: ancestry.system.levels[0].attributes.strength.formula ? ancestry.system.levels[0].attributes.strength.formula : ancestry.system.levels[0].attributes.strength.value,
-              agi: ancestry.system.levels[0].attributes.agility.formula ? ancestry.system.levels[0].attributes.agility.formula : ancestry.system.levels[0].attributes.agility.value,
-              int: ancestry.system.levels[0].attributes.intellect.formula ? ancestry.system.levels[0].attributes.intellect.formula : ancestry.system.levels[0].attributes.intellect.value,
-              wil: ancestry.system.levels[0].attributes.will.formula ? ancestry.system.levels[0].attributes.will.formula : ancestry.system.levels[0].attributes.will.value,
-              strRolled: ancestry.system.levels[0].attributes.strength.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.strength.formula) : ancestry.system.levels[0].attributes.strength.value,
-              agiRolled: ancestry.system.levels[0].attributes.agility.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.agility.formula) : ancestry.system.levels[0].attributes.agility.value,
-              intRolled: ancestry.system.levels[0].attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.intellect.formula) : ancestry.system.levels[0].attributes.intellect.value,
-              wilRolled: ancestry.system.levels[0].attributes.will.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.will.formula) : ancestry.system.levels[0].attributes.will.value,
-              bonus_points: await this.calculateBonusPoints(ancestry.name),
-          })
+        ancestryArray.push({
+          name: SDLCGRoller.SUPPORTED_PACKS.find(x => x === ancestry.pack) ? ancestry.name : `${ancestry.name} †`,
+          pack: ancestry.pack,
+          id: ancestry.id,
+          str: ancestry.system.levels[0].attributes.strength.formula ? ancestry.system.levels[0].attributes.strength.formula : ancestry.system.levels[0].attributes.strength.value,
+          agi: ancestry.system.levels[0].attributes.agility.formula ? ancestry.system.levels[0].attributes.agility.formula : ancestry.system.levels[0].attributes.agility.value,
+          int: ancestry.system.levels[0].attributes.intellect.formula ? ancestry.system.levels[0].attributes.intellect.formula : ancestry.system.levels[0].attributes.intellect.value,
+          wil: ancestry.system.levels[0].attributes.will.formula ? ancestry.system.levels[0].attributes.will.formula : ancestry.system.levels[0].attributes.will.value,
+          strRolled: ancestry.system.levels[0].attributes.strength.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.strength.formula) : ancestry.system.levels[0].attributes.strength.value,
+          agiRolled: ancestry.system.levels[0].attributes.agility.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.agility.formula) : ancestry.system.levels[0].attributes.agility.value,
+          intRolled: ancestry.system.levels[0].attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.intellect.formula) : ancestry.system.levels[0].attributes.intellect.value,
+          wilRolled: ancestry.system.levels[0].attributes.will.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.will.formula) : ancestry.system.levels[0].attributes.will.value,
+          bonus_points: await this.calculateBonusPoints(ancestry.name),
+        })
 
-          if (!SDLCGRoller.INCARNATION_EXCLUSION_LIST.find(x => x === ancestry.name) && game.modules.get('sdlc-1024')?.active) {
-              ancestryArray.push({
-                  name: `Incarnation (${ancestry.name})`,
-                  pack: ancestry.pack,
-                  id: ancestry.id,
-                  str: ancestry.system.levels[0].attributes.strength.formula ? ancestry.system.levels[0].attributes.strength.formula : ancestry.system.levels[0].attributes.strength.value,
-                  agi: ancestry.system.levels[0].attributes.agility.formula ? ancestry.system.levels[0].attributes.agility.formula : ancestry.system.levels[0].attributes.agility.value,
-                  int: ancestry.system.levels[0].attributes.intellect.formula ? ancestry.system.levels[0].attributes.intellect.formula : ancestry.system.levels[0].attributes.intellect.value,
-                  wil: ancestry.system.levels[0].attributes.will.formula ? ancestry.system.levels[0].attributes.will.formula : ancestry.system.levels[0].attributes.will.value,
-                  strRolled: ancestry.system.levels[0].attributes.strength.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.strength.formula) : ancestry.system.levels[0].attributes.strength.value,
-                  agiRolled: ancestry.system.levels[0].attributes.agility.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.agility.formula) : ancestry.system.levels[0].attributes.agility.value,
-                  intRolled: ancestry.system.levels[0].attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.intellect.formula) : ancestry.system.levels[0].attributes.intellect.value,
-                  wilRolled: ancestry.system.levels[0].attributes.will.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.will.formula) : ancestry.system.levels[0].attributes.will.value,
-                  bonus_points: await this.calculateBonusPoints(ancestry.name),
-              })
-          }
+        if (!SDLCGRoller.INCARNATION_EXCLUSION_LIST.find(x => x === ancestry.name) && game.modules.get('sdlc-1024')?.active) {
+          ancestryArray.push({
+            name: `Incarnation (${ancestry.name})`,
+            pack: ancestry.pack,
+            id: ancestry.id,
+            str: ancestry.system.levels[0].attributes.strength.formula ? ancestry.system.levels[0].attributes.strength.formula : ancestry.system.levels[0].attributes.strength.value,
+            agi: ancestry.system.levels[0].attributes.agility.formula ? ancestry.system.levels[0].attributes.agility.formula : ancestry.system.levels[0].attributes.agility.value,
+            int: ancestry.system.levels[0].attributes.intellect.formula ? ancestry.system.levels[0].attributes.intellect.formula : ancestry.system.levels[0].attributes.intellect.value,
+            wil: ancestry.system.levels[0].attributes.will.formula ? ancestry.system.levels[0].attributes.will.formula : ancestry.system.levels[0].attributes.will.value,
+            strRolled: ancestry.system.levels[0].attributes.strength.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.strength.formula) : ancestry.system.levels[0].attributes.strength.value,
+            agiRolled: ancestry.system.levels[0].attributes.agility.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.agility.formula) : ancestry.system.levels[0].attributes.agility.value,
+            intRolled: ancestry.system.levels[0].attributes.intellect.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.intellect.formula) : ancestry.system.levels[0].attributes.intellect.value,
+            wilRolled: ancestry.system.levels[0].attributes.will.formula ? await this.attributeReRoll(ancestry.system.levels[0].attributes.will.formula) : ancestry.system.levels[0].attributes.will.value,
+            bonus_points: await this.calculateBonusPoints(ancestry.name),
+          })
+        }
       }
-  }
+    }
 
     let i = 0
     this.genderArray.push({
@@ -155,20 +173,20 @@ export class SDLCGRoller extends FormApplication {
     })
 
     if (game.modules.get('sdlc-1015')?.active) {
-        this.backgroundArray.push({
-            id: 'sdlc-1015',
-            name: game.modules.get('sdlc-1015').title,
-        })
-        this.markOfDarknessArray.push({
-          id: 'sdlc-1015',
-          name: game.modules.get('sdlc-1015').title,
-      })        
+      this.backgroundArray.push({
+        id: 'sdlc-1015',
+        name: game.modules.get('sdlc-1015').title,
+      })
+      this.markOfDarknessArray.push({
+        id: 'sdlc-1015',
+        name: game.modules.get('sdlc-1015').title,
+      })
     }
 
     if (game.modules.get('sdlc-1014')?.active) {
       this.backgroundArray.push({
-          id: 'sdlc-1014',
-          name: game.modules.get('sdlc-1014').title,
+        id: 'sdlc-1014',
+        name: game.modules.get('sdlc-1014').title,
       })
       this.interestingThingsArray.push({
         id: 'sdlc-1014',
@@ -187,8 +205,12 @@ export class SDLCGRoller extends FormApplication {
     await utils.sortArrayByName(this.professionArray)
 
     this.ancestries = ancestries
-    let selectedAncestryName = this.ancestries.find(x => x.id === ancestryArray[0].id).name  
+    let selectedAncestryName = this.ancestries.find(x => x.id === ancestryArray[0].id).name
     return {
+      buttons: [
+        { type: 'submit', action: 'reroll', icon: 'fas fa-dice', label: 'SOTDLCG.RerollAttributes' },
+        { type: 'submit', action: 'create', icon: 'fa-solid fa-user-shield', label: 'SOTDLCG.Create' },
+      ],
       ancestries: ancestryArray,
       gender: this.genderArray,
       backgrounds: this.backgroundArray,
@@ -196,14 +218,14 @@ export class SDLCGRoller extends FormApplication {
       markofdarkness: this.markOfDarknessArray,
       disposition: this.dispositionArray,
       interestingthigs: this.interestingThingsArray,
-      showBackgroundDropDown: game.modules.get('sdlc-1015')?.active || game.modules.get('sdlc-1014')?.active  ? true : false,
+      showBackgroundDropDown: game.modules.get('sdlc-1015')?.active || game.modules.get('sdlc-1014')?.active ? true : false,
       showMarkOfDarknessDropDown: game.modules.get('sdlc-1015')?.active ? true : false,
       showinterestingThingsDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
       showprofessionDropDown: game.modules.get('sdlc-1014')?.active ? true : false,
-      professionChange : SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryArray[0].name) ? false : true,
+      professionChange: SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestryArray[0].name) ? false : true,
       backgroundNoChange: SDLCGRoller.BACKROUND_NOCHANGE_LIST.find(x => x === ancestryArray[0].name) ? true : false,
       devilAnchestry: ancestryArray[0].name === 'Cambion' ? false : true,
-      selectedBackground: game.modules.get('sdlc-1015')?.active && ancestryArray[0].name === 'Cambion' ? 'sdlc-1015' : 'sdlc-1000'
+      selectedBackground: game.modules.get('sdlc-1015')?.active && ancestryArray[0].name === 'Cambion' ? 'sdlc-1015' : 'sdlc-1000',
     }
   }
 
@@ -218,39 +240,37 @@ export class SDLCGRoller extends FormApplication {
 
   async ancestryChange(event) {
     let ancestry = this.ancestries.find(x => x.id === $('#select_ancestry').val())
-    $("#select_interestingthigs").val('sdlc-1000')
+    $('#select_interestingthigs').val('sdlc-1000')
     let pack = ancestry.pack.substr(0, 9)
-    if (pack === 'sdlc-1001' || pack === 'sdlc-1002') pack = 'sdlc-1000'    
-    $("#select_background").val(pack)
+    if (pack === 'sdlc-1001' || pack === 'sdlc-1002') pack = 'sdlc-1000'
+    $('#select_background').val(pack)
     if (SDLCGRoller.BACKROUND_NOCHANGE_LIST.find(x => x === ancestry.name))
-    {
-      $("#select_background").prop( "disabled", true)
+      {
+      $('#select_background').prop('disabled', true)
     }
     else
-    {
-      $("#select_background").prop( "disabled", false)
+      {
+      $('#select_background').prop('disabled', false)
     }
 
-    if (ancestry.name === 'Cambion')
-    {
-      $("#select_markofdarkness").val('sdlc-1015')
-      $("#select_markofdarkness").prop( "disabled", false)
+    if (ancestry.name === 'Cambion') {
+      $('#select_markofdarkness').val('sdlc-1015')
+      $('#select_markofdarkness').prop('disabled', false)
     }
     else
-    {
-      $("#select_markofdarkness").val('sdlc-1000')
-      $("#select_markofdarkness").prop( "disabled", true)
+      {
+      $('#select_markofdarkness').val('sdlc-1000')
+      $('#select_markofdarkness').prop('disabled', true)
     }
 
-    if (SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestry.name))
-    {
-      $("#select_profession").val('sdlc-1014')
-      $("#select_profession").prop( "disabled", false)
+    if (SDLCGRoller.PROFESSION_CHANGE_LIST.find(x => x === ancestry.name)) {
+      $('#select_profession').val('sdlc-1014')
+      $('#select_profession').prop('disabled', false)
     }
     else
-    {
-      $("#select_profession").val('sdlc-1000')
-      $("#select_profession").prop( "disabled", true)
+      {
+      $('#select_profession').val('sdlc-1000')
+      $('#select_profession').prop('disabled', true)
     }
 
     this.malusUsed = false
@@ -264,10 +284,10 @@ export class SDLCGRoller extends FormApplication {
     $('.agiMOD').text(utils.setSign('0'))
     $('.intMOD').text(utils.setSign('0'))
     $('.wilMOD').text(utils.setSign('0'))
-    $('.str').css({ color: 'black' })
-    $('.agi').css({ color: 'black' })
-    $('.int').css({ color: 'black' })
-    $('.wil').css({ color: 'black' })
+    $('.str').css({ color: 'var(--color-text-primary)' })
+    $('.agi').css({ color: 'var(--color-text-primary)' })
+    $('.int').css({ color: 'var(--color-text-primary)' })
+    $('.wil').css({ color: 'var(--color-text-primary)' })
     $('.strFIX').text(ancestry.system.levels[0].attributes.strength.formula ? ancestry.system.levels[0].attributes.strength.formula : ancestry.system.levels[0].attributes.strength.value)
     $('.agiFIX').text(ancestry.system.levels[0].attributes.agility.formula ? ancestry.system.levels[0].attributes.agility.formula : ancestry.system.levels[0].attributes.agility.value)
     $('.intFIX').text(ancestry.system.levels[0].attributes.intellect.formula ? ancestry.system.levels[0].attributes.intellect.formula : ancestry.system.levels[0].attributes.intellect.value)
@@ -291,14 +311,14 @@ export class SDLCGRoller extends FormApplication {
       $('.wil_minus').css({ color: backColor2 })
       $('.wil_plus').css({ color: backColor2 })
     } else {
-      $('.str_minus').css({ color: 'black' })
-      $('.str_plus').css({ color: 'black' })
-      $('.int_minus').css({ color: 'black' })
-      $('.int_plus').css({ color: 'black' })
-      $('.agi_minus').css({ color: 'black' })
-      $('.agi_plus').css({ color: 'black' })
-      $('.wil_minus').css({ color: 'black' })
-      $('.wil_plus').css({ color: 'black' })
+      $('.str_minus').css({ color: 'var(--color-text-primary)' })
+      $('.str_plus').css({ color: 'var(--color-text-primary)' })
+      $('.int_minus').css({ color: 'var(--color-text-primary)' })
+      $('.int_plus').css({ color: 'var(--color-text-primary)' })
+      $('.agi_minus').css({ color: 'var(--color-text-primary)' })
+      $('.agi_plus').css({ color: 'var(--color-text-primary)' })
+      $('.wil_minus').css({ color: 'var(--color-text-primary)' })
+      $('.wil_plus').css({ color: 'var(--color-text-primary)' })
     }
   }
 
@@ -321,7 +341,7 @@ export class SDLCGRoller extends FormApplication {
       if (prevModValue === -1) {
         $('.bonus-max').text(bonusMax - 1)
         this.malusUsed = false
-        $('.' + classAttr).css({ color: 'black' })
+        $('.' + classAttr).css({ color: 'var(--color-text-primary)' })
         $('.' + classAttr + 'MOD').css({ color: '#595959' })
       }
       $('.' + classAttr).text(Number($('.' + classAttr).text()) + 1)
@@ -344,7 +364,7 @@ export class SDLCGRoller extends FormApplication {
         this.malusUsed = true
       } else {
         $('.bonus-used').text(bonusUsed - 1)
-        $('.' + classAttr).css({ color: 'black' })
+        $('.' + classAttr).css({ color: 'var(--color-text-primary)' })
         $('.' + classAttr + 'MOD').css({ color: '#595959' })
       }
     }
@@ -363,33 +383,33 @@ export class SDLCGRoller extends FormApplication {
   async calculateBonusPoints(ancestryName) {
     let bonusPoints
     switch (ancestryName) {
-        case 'Human':
-            bonusPoints = 1
-            break;
-        case 'Elf':
-            bonusPoints = 2
-            break;
-        default:
-            bonusPoints = 0
-            break;
+      case 'Human':
+        bonusPoints = 1
+        break
+      case 'Elf':
+        bonusPoints = 2
+        break
+      default:
+        bonusPoints = 0
+        break
     }
     return bonusPoints
-}
-
-  async attributeReRoll(formula) {
-    let roll = formula.split("1d3").pop()
-    return roll = Number(roll.split("+").pop()) + Math.round(Math.random() * 2 + 1)
   }
 
-  async _updateObject(event, formData) {
+  async attributeReRoll(formula) {
+    let roll = formula.split('1d3').pop()
+    return (roll = Number(roll.split('+').pop()) + Math.round(Math.random() * 2 + 1))
+  }
+
+  static async onSubmit(event, form, formData) {
     if (this.settings.Disable3Ddice && game.modules.get('dice-so-nice')?.active)
       game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
-    const reRollAttributes = $(event.currentTarget).hasClass('sotdl-chargen-reroll')
+    const reRollAttributes = event.submitter.dataset.action === 'reroll' ? true : false
 
-    let ancestry = this.ancestries.find(x => x.id === formData.select_ancestry)
+    let ancestry = this.ancestries.find(x => x.id === foundry.utils.expandObject(formData.object).select_ancestry)
     let ancestryName = ancestry.name
     let pack = ancestry.pack.substr(0, 9)
-    let incarnation = $("#select_ancestry option:selected").text().startsWith('Incarnation')
+    let incarnation = $('#select_ancestry option:selected').text().startsWith('Incarnation')
     let ancestryOnActorClone = await foundry.utils.deepClone(ancestry)
     let startingCorruption
     let startingInsanity
@@ -406,19 +426,19 @@ export class SDLCGRoller extends FormApplication {
         this.wil = ancestry.system.levels[0].attributes.will.value - 2 + resultArray[3].result
       } else {
         let resultArray = await this.attributesReRoll()
-        let  strBaseNumber = ancestry.system.levels[0].attributes.strength.formula.split("1d3").pop()
-        let  agiBaseNumber = ancestry.system.levels[0].attributes.agility.formula.split("1d3").pop()
-        let  intBaseNumber = ancestry.system.levels[0].attributes.intellect.formula.split("1d3").pop()
-        let  wilBaseNumber = ancestry.system.levels[0].attributes.will.formula.split("1d3").pop()
-        this.str = ancestry.system.levels[0].attributes.strength.formula ? Number(strBaseNumber.split("+").pop()) + resultArray[0].result : ancestry.system.levels[0].attributes.strength.value
-        this.agi = ancestry.system.levels[0].attributes.agility.formula ? Number(agiBaseNumber.split("+").pop()) + resultArray[1].result : ancestry.system.levels[0].attributes.agility.value
-        this.int = ancestry.system.levels[0].attributes.intellect.formula ? Number(intBaseNumber.split("+").pop()) + resultArray[2].result : ancestry.system.levels[0].attributes.intellect.value
-        this.wil = ancestry.system.levels[0].attributes.will.formula ? Number(wilBaseNumber.split("+").pop()) + resultArray[3].result : ancestry.system.levels[0].attributes.will.value
+        let strBaseNumber = ancestry.system.levels[0].attributes.strength.formula.split('1d3').pop()
+        let agiBaseNumber = ancestry.system.levels[0].attributes.agility.formula.split('1d3').pop()
+        let intBaseNumber = ancestry.system.levels[0].attributes.intellect.formula.split('1d3').pop()
+        let wilBaseNumber = ancestry.system.levels[0].attributes.will.formula.split('1d3').pop()
+        this.str = ancestry.system.levels[0].attributes.strength.formula ? Number(strBaseNumber.split('+').pop()) + resultArray[0].result : ancestry.system.levels[0].attributes.strength.value
+        this.agi = ancestry.system.levels[0].attributes.agility.formula ? Number(agiBaseNumber.split('+').pop()) + resultArray[1].result : ancestry.system.levels[0].attributes.agility.value
+        this.int = ancestry.system.levels[0].attributes.intellect.formula ? Number(intBaseNumber.split('+').pop()) + resultArray[2].result : ancestry.system.levels[0].attributes.intellect.value
+        this.wil = ancestry.system.levels[0].attributes.will.formula ? Number(wilBaseNumber.split('+').pop()) + resultArray[3].result : ancestry.system.levels[0].attributes.will.value
       }
-      $('.str').css({ color: 'black' })
-      $('.agi').css({ color: 'black' })
-      $('.int').css({ color: 'black' })
-      $('.wil').css({ color: 'black' })
+      $('.str').css({ color: 'var(--color-text-primary)' })
+      $('.agi').css({ color: 'var(--color-text-primary)' })
+      $('.int').css({ color: 'var(--color-text-primary)' })
+      $('.wil').css({ color: 'var(--color-text-primary)' })
       $('.str').text(this.str)
       $('.agi').text(this.agi)
       $('.int').text(this.int)
@@ -432,28 +452,28 @@ export class SDLCGRoller extends FormApplication {
       $('.bonus-max').text(await this.calculateBonusPoints(ancestry.name))
     } else {
       let genActor = await this.createGenActor(
-        formData.character_name.length !== 0 ? utils.capitalize(formData.character_name) : ancestry.name,
+        foundry.utils.expandObject(formData.object).character_name.length !== 0 ? utils.capitalize(foundry.utils.expandObject(formData.object).character_name) : ancestry.name,
       )
 
       await genActor.updateSource({
-        'system.appearance.sex': this.genderArray[formData.select_gender].name,
+        'system.appearance.sex': this.genderArray[foundry.utils.expandObject(formData.object).select_gender].name,
       })
 
       await genActor.update({
         prototypeToken: {
-          disposition: formData.select_disposition,
+          disposition: foundry.utils.expandObject(formData.object).select_disposition,
         },
       })
 
-      let markOfDarknessCompendia = formData.select_markofdarkness === undefined ? 'sdlc-1000' : formData.select_markofdarkness
-      let interestingThingsCompendia = formData.select_interestingthigs === undefined ? 'sdlc-1000' : formData.select_interestingthigs
-      let professionCompendia = formData.select_profession === undefined ? 'sdlc-1000' :  formData.select_profession
-      let backgroundCompendia = formData.select_background
+      let markOfDarknessCompendia = foundry.utils.expandObject(formData.object).select_markofdarkness === undefined ? 'sdlc-1000' : foundry.utils.expandObject(formData.object).select_markofdarkness
+      let interestingThingsCompendia = foundry.utils.expandObject(formData.object).select_interestingthigs === undefined ? 'sdlc-1000' : foundry.utils.expandObject(formData.object).select_interestingthigs
+      let professionCompendia = foundry.utils.expandObject(formData.object).select_profession === undefined ? 'sdlc-1000' : foundry.utils.expandObject(formData.object).select_profession
+      let backgroundCompendia = foundry.utils.expandObject(formData.object).select_background
 
-      if (formData.select_background === undefined)
-      {
-        backgroundCompendia =  pack
-        if (backgroundCompendia === 'sdlc-1001' || backgroundCompendia === 'sdlc-1002' ) backgroundCompendia === 'sdlc-1000'
+      if (foundry.utils.expandObject(formData.object).select_background === undefined)
+        {
+        backgroundCompendia = pack
+        if (backgroundCompendia === 'sdlc-1001' || backgroundCompendia === 'sdlc-1002') backgroundCompendia === 'sdlc-1000'
       }
 
       let levelAttribs = ancestryOnActorClone.system.levels
@@ -477,49 +497,51 @@ export class SDLCGRoller extends FormApplication {
         levelAttribs[0].characteristics.corruption.formula = ''
       }
 
-      await ancestryOnActorClone.updateSource({'system.levels':  levelAttribs})
+      await ancestryOnActorClone.updateSource({ 'system.levels': levelAttribs })
 
       if (incarnation) {
         await ancestryOnActorClone.updateSource({
-            name: `Incarnation (${ancestry.name})`
+          name: `Incarnation (${ancestry.name})`
         })
 
         levelAttribs = ancestryOnActorClone.system.levels
         levelAttribs[0].attributes.intellect.value = 10
         levelAttribs[0].attributes.will.value = 10
-        await ancestryOnActorClone.updateSource({'system.levels':  levelAttribs})
+        await ancestryOnActorClone.updateSource({ 'system.levels': levelAttribs })
 
         await genActor.update({
-            'system.characteristics.corruption.value': 0
+          'system.characteristics.corruption.value': 0
         })
         await genActor.update({
-            'system.characteristics.insanity.value': 0
+          'system.characteristics.insanity.value': 0
         })
 
         let incarnationAncestry = this.ancestries.find(x => x.name === 'Incarnation')
         let incarnationTalents = incarnationAncestry.system.levels[0].talents
         // incarnationTalents = incarnationTalents.filter(function (el) {return el.name !== 'Darksight'})
-        incarnationTalents = incarnationTalents.filter(a => !SDLCGRoller.INCARNATION_TALENT_LIST.map(b=>b).includes(a.name))
+        incarnationTalents = incarnationTalents.filter(
+          a => !SDLCGRoller.INCARNATION_TALENT_LIST.map(b => b).includes(a.name),
+        )
 
         let combinedTalents = ancestryOnActorClone.system.levels[0].talents.concat(incarnationTalents)
         await ancestryOnActorClone.updateSource({
           system: {
-              levels: [
-                  {
-                      level: '0',
-                      talents: combinedTalents
-                  }
-              ]
-          }
-      })
-      ancestryOnActorClone.system.levels[0].talents.push(incarnationTalents)
-    }
+            levels: [
+              {
+                level: '0',
+                talents: combinedTalents,
+              },
+            ],
+          },
+        })
+        ancestryOnActorClone.system.levels[0].talents.push(incarnationTalents)
+      }
 
-    await genActor.createEmbeddedDocuments('Item', [ancestryOnActorClone])
+      await genActor.createEmbeddedDocuments('Item', [ancestryOnActorClone])
 
-    // Characteristics from ancestry
-    await genActor.update({ 'system.characteristics.insanity.value': startingInsanity })
-    await genActor.update({ 'system.characteristics.corruption.value': startingCorruption })
+      // Characteristics from ancestry
+      await genActor.update({ 'system.characteristics.insanity.value': startingInsanity })
+      await genActor.update({ 'system.characteristics.corruption.value': startingCorruption })
 
       let common = new shared.SDLCGShared()
       await common.getData()
@@ -567,13 +589,13 @@ export class SDLCGRoller extends FormApplication {
           await common.rollNotYetImplemented(genActor, ancestryName)
       }
 
-      if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName)) 
+      if (!SDLCGRoller.NON_PLAYABLE.find(x => x === ancestryName))
         {
-          await common.rollPersonalityTraits(genActor)
-      if (interestingThingsCompendia === 'sdlc-1014') await common.rollIntrestingThingTerribleBeauty(genActor)
+        await common.rollPersonalityTraits(genActor)
+        if (interestingThingsCompendia === 'sdlc-1014') await common.rollIntrestingThingTerribleBeauty(genActor)
         else await common.rollIntrestingThing(genActor)
-      await common.rollWealth(genActor, backgroundCompendia)
-}
+        await common.rollWealth(genActor, backgroundCompendia)
+      }
       if (!SDLCGRoller.NO_PROFESSION_ROLL.find(x => x === ancestry.name)) await common.rollProfession(genActor, professionCompendia)
       if (incarnation) {
         await genActor.update({
@@ -610,10 +632,11 @@ export class SDLCGRoller extends FormApplication {
       game.dice3d.messageHookDisabled = !game.dice3d.messageHookDisabled
   }
 
-  activateListeners(html) {
-    super.activateListeners(html)
-    this.element.find('.ancestry_drop_down').change(this.ancestryChange.bind(this))
-    this.element.find('.sotdl-chargen-button').click(this.adjustBonus.bind(this))
-    this.element.find('.sotdl-chargen-reroll').click(this._onSubmit.bind(this))
+  _onRender(context, options) {
+    const html = $(this.element)
+    //    super.activateListeners(html)
+    html.find('.ancestry_drop_down').change(this.ancestryChange.bind(this))
+    html.find('.sotdl-chargen-button').click(this.adjustBonus.bind(this))
+    //html.find('.sotdl-chargen-reroll').click(this._onSubmit.bind(this))
   }
 }

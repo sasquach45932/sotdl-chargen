@@ -344,7 +344,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '76+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Clockwork Age') {
@@ -367,7 +367,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '150+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Dwarf Age') {
@@ -394,7 +394,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '151+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Dwarf Hatred') {
@@ -425,7 +425,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '76+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Orc Age') {
@@ -452,7 +452,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '33+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Changeling True Age') {
@@ -479,7 +479,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '61+'
       }
-      await actor.update({ 'system.appearance.age': age + ' years old' })
+      await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Faun Age' || desc === 'Halfling Age') {
@@ -506,7 +506,7 @@ export class SDLCGShared {
       if (r.roll._total === 18) {
         age = '76+'
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Cambion Age') {
@@ -536,7 +536,7 @@ export class SDLCGShared {
         age = '76+'
         await actor.update({ 'system.characteristics.corruption.value': 3 })
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Hobgoblin Age') {
@@ -568,7 +568,7 @@ export class SDLCGShared {
         //      age = "30-33";
         age = 29 + (await utils.rollNoDice('1d4'))
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Elf Age') {
@@ -582,7 +582,7 @@ export class SDLCGShared {
         age = 3 + (await utils.rollDice('1d20 * 50'))
         description = description.replace('[[/r 1d20 * 50]]', age)
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Pixie Age') {
@@ -596,7 +596,7 @@ export class SDLCGShared {
         age = 3 + (await utils.rollDice('1d20 * 5'))
         description = description.replace('[[/r 1d20 * 5]]', age)
       }
-      if (!changeling) await actor.update({ 'system.appearance.age': age + ' years old' })
+      if (!changeling) await actor.update({ 'system.appearance.age': age })
     }
 
     if (desc === 'Pixie Appearance') {
@@ -1836,7 +1836,7 @@ export class SDLCGShared {
       pPack = pPack.replace('tables', 'professions')
       let prof = this.professions.find(x => x.pack === pPack && x._id === itemId)
       return prof.name
-    } else return profession.name
+    } else return !profession.description.length ? profession.name : profession.description
   }
 
   async selectProfessionCategory() {

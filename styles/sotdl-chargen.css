@@ -13,6 +13,10 @@
   width:100%;
 }
 
+.standard-form{
+  gap: 0em !important;
+}
+
 .sotdl-chargen-user-input{
   width:100%;
   display: inline-block;
@@ -50,5 +54,3 @@
   width: 20px;
   color: #595959;
 }
-
-
